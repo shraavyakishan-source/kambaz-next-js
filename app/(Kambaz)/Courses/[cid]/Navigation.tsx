@@ -6,15 +6,19 @@ export default function CourseNavigation() {
       <br />
       <Link href="/Courses/5610/Modules">Modules</Link>
       <br />
-      <Link href="/Courses/5610/Piazza">Piazza</Link>
+      <Link href="https://piazza.com/class/mf08v5tcamaem/post/35">Piazza</Link>
       <br />
-      <Link href="/Courses/5610/Zoom">Zoom</Link>
+      <Link href="https://northeastern.zoom.us/">Zoom</Link>
       <br />
       <Link href="/Courses/5610/Assignments">Assignments</Link>
       <br />
-      <Link href="/Courses/5610/Quizzes">Quizzes</Link>
+      <Link href="https://northeastern.instructure.com/courses/225999/quizzes">
+        Quizzes
+      </Link>
       <br />
-      <Link href="/Courses/5610/Grades">Grades</Link>
+      <Link href="https://northeastern.instructure.com/courses/225999/grades">
+        Grades
+      </Link>
       <br />
       <Link href="/Courses/5610/People/Table">People</Link>
       <br />
