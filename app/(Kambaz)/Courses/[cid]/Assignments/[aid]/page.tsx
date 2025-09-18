@@ -2,126 +2,128 @@ export default function AssignmentEditor() {
   return (
     <div id="wd-assignments-editor">
       <label htmlFor="wd-name">Assignment Name</label>
-      <input id="wd-name" value="A1 - ENV + HTML" />
+      <input id="wd-name" defaultValue="A1 - ENV + HTML" />
       <br />
       <br />
-      <textarea id="wd-description">
-        The assignment is available online Submit a link to the landing page of
-        your web application running on Netlify. The landing page should include
-        the following: Your full name and section Links to each of the lab
-        assignments Link to the Kambaz application Links to all relevant source
-        code repositories.
-      </textarea>
+      <textarea
+        id="wd-description"
+        defaultValue={`The assignment is available online Submit a link to the landing page of
+your web application running on Netlify. The landing page should include
+the following: Your full name and section Links to each of the lab
+assignments Link to the Kambaz application Links to all relevant source
+code repositories.`}
+      />
       <br />
       <table>
-        <tr>
-          <td align="right" valign="top">
-            <label htmlFor="wd-points">Points</label>
-          </td>
-          <td>
-            <input id="wd-points" value={100} />
-          </td>
-        </tr>
-        <br />
-        <tr>
-          <td align="right" valign="top">
-            <label htmlFor="wd-points">Assignment Group</label>
-          </td>
-          <select>
-            <option selected value="Assignment">
-              ASSIGNMENTS
-            </option>
-          </select>
-        </tr>
-        <br />
-        <tr>
-          <td align="right" valign="top">
-            <label htmlFor="wd-points">Display Grade as</label>
-          </td>
-          <select>
-            <option selected value="Percentage">
-              Percentage
-            </option>
-          </select>
-        </tr>
-        <br />
-        <tr>
-          <td align="right" valign="top">
-            <label htmlFor="wd-points">Submission Type</label>
-          </td>
-          <select>
-            <option selected value="Online">
-              Online
-            </option>
-          </select>
-        </tr>
-        <br />
-        <tr>
-          <td align="right" valign="top">
-            <label>Online Entry Options</label>
-          </td>
-          <br />
-          <input type="checkbox" name="check-entry" id="wd-chkbox-Text" />
-          <label htmlFor="wwd-chkbox-Text">Text Entry</label>
-          <br />
-
-          <input type="checkbox" name="check-entry" id="wd-chkbox-URL" />
-          <label htmlFor="wd-chkbox-URL">Website URL</label>
-          <br />
-
-          <input type="checkbox" name="check-entry" id="wd-chkbox-Recordings" />
-          <label htmlFor="wd-chkbox-Recordings">Media Recordings</label>
-          <br />
-
-          <input type="checkbox" name="check-entry" id="wd-chkbox-Annotation" />
-          <label htmlFor="wwd-chkbox-Annotation">Student Annotation</label>
-          <br />
-
-          <input type="checkbox" name="check-entry" id="wd-chkbox-File" />
-          <label htmlFor="wd-chkbox-File">File Uploads</label>
-        </tr>
-        <br />
-        <tr>
-          <td align="right" valign="top">
-            <label htmlFor="wd-Everyone">Assign</label>
-            <label htmlFor="wd-Everyone">Assign to</label>
-          </td>
-          <td>
-            <input id="wd-points" value="Everyone" />
-          </td>
-          <br />
-        </tr>
-        <td align="right" valign="top"></td>
-        <label htmlFor="wd-text-fields-date"> Due </label>
-        <input type="date" value="2024-05-13" id="wd-text-fields-date" />
-        <br />
         <tbody>
-          <tr colSpan={3}>
-            <td>
-              <label htmlFor="wd-text-fields-date"> Available from </label>
+          <tr>
+            <td align="right" valign="top">
+              <label htmlFor="wd-points">Points</label>
             </td>
             <td>
-              <label htmlFor="wd-text-fields-date"> Until </label>
+              <input id="wd-points" defaultValue="100" />
             </td>
-            <br />
+          </tr>
+          <tr>
+            <td align="right" valign="top">
+              <label>Assignment Group</label>
+            </td>
+            <td>
+              <select defaultValue="Assignment">
+                <option defaultValue="Assignment">ASSIGNMENTS</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td align="right" valign="top">
+              <label>Display Grade as</label>
+            </td>
+            <td>
+              <select defaultValue="Percentage">
+                <option defaultValue="Percentage">Percentage</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td align="right" valign="top">
+              <label>Submission Type</label>
+            </td>
+            <td>
+              <select defaultValue="Online">
+                <option defaultValue="Online">Online</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td></td>
+            <td>
+              <label>Online Entry Options</label>
+              <br />
+              <input type="checkbox" id="wd-chkbox-Text" />
+              <label htmlFor="wd-chkbox-Text"> Text Entry</label>
+              <br />
+
+              <input type="checkbox" id="wd-chkbox-URL" />
+              <label htmlFor="wd-chkbox-URL"> Website URL</label>
+              <br />
+
+              <input type="checkbox" id="wd-chkbox-Recordings" />
+              <label htmlFor="wd-chkbox-Recordings"> Media Recordings</label>
+              <br />
+
+              <input type="checkbox" id="wd-chkbox-Annotation" />
+              <label htmlFor="wd-chkbox-Annotation"> Student Annotation</label>
+              <br />
+
+              <input type="checkbox" id="wd-chkbox-File" />
+              <label htmlFor="wd-chkbox-File"> File Uploads</label>
+            </td>
           </tr>
 
           <tr>
             <td align="right" valign="top">
-              <input type="date" value="2024-05-06" id="wd-text-fields-date" />
+              <label htmlFor="wd-Everyone">Assign</label>
             </td>
             <td>
-              <input type="date" value="2024-05-20" id="wd-text-fields-date" />
+              <label htmlFor="wd-Everyone">Assign to</label>
+              <br />
+              <input id="wd-Everyone" defaultValue="Everyone" />
+            </td>
+          </tr>
+
+          <tr>
+            <td></td>
+            <td>
+              <label htmlFor="wd-due-date">Due</label>
+              <br />
+              <input type="date" defaultValue="2024-05-13" id="wd-due-date" />
+            </td>
+          </tr>
+
+          <tr>
+            <td></td>
+            <td>
+              <label htmlFor="wd-available-date">Available from</label>
+              &nbsp;&nbsp;&nbsp;
+              <label htmlFor="wd-until-date">Until</label>
+              <br />
+              <input
+                type="date"
+                defaultValue="2024-05-06"
+                id="wd-available-date"
+              />
+              &nbsp;&nbsp;
+              <input type="date" defaultValue="2024-05-20" id="wd-until-date" />
             </td>
           </tr>
         </tbody>
-        <br />
         <tfoot>
           <tr>
             <td colSpan={3}></td>
             <td>
               <button>Cancel</button>
-              <button>save</button>
+              <button>Save</button>
             </td>
           </tr>
         </tfoot>

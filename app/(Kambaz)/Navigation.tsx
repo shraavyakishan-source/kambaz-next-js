@@ -3,7 +3,6 @@ export default function KambazNavigation() {
   return (
     <div>
       <a href="https://www.northeastern.edu/" target="_blank">
-        {" "}
         Northeastern
       </a>
       <br />
@@ -13,7 +12,9 @@ export default function KambazNavigation() {
       <br />
       <Link href="/Dashboard"> Courses</Link>
       <br />
-      <Link href="/Calendar"> Calendar</Link>
+      <Link href="https://northeastern.instructure.com/calendar#view_name=month&view_start=2025-09-17">
+        Calendar
+      </Link>
       <br />
       <Link href="/Inbox"> Inbox</Link>
       <br />

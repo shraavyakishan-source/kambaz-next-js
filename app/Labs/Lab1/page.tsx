@@ -5,7 +5,6 @@ export default function Lab1() {
         <b>
           <p>Name: Shraavya B K</p>
           <p>Section: 05 | CRN: 19730 | </p>
-          <a href="http://localhost:3000/">Link to Kambaz Application</a>
         </b>
         <h2>Lab1</h2>
       </div>
