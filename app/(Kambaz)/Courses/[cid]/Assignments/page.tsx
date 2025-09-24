@@ -1,7 +1,9 @@
+import Link from "next/link";
+
 export default function Assignments() {
   return (
     <div id="wd-assignments">
-      <input placeholder="Search for Assignments"></input>
+      <input placeholder="Search for Assignments" />
       <button>+Group</button>
       <button>+Assignment</button>
       <br />
@@ -10,33 +12,43 @@ export default function Assignments() {
       </h3>
       <ul id="wd-assignment-list">
         <li className="wd-assignment-list-item">
-          <a
+          <Link
             href="/Courses/5610/Assignments/5610"
             className="wd-assignment-link"
           >
             A1 - ENV + HTML
-          </a>
+          </Link>
+          <p>
+            Multiple Modules | <b>Not available until</b> May 6 at 12:00am |{" "}
+            <b>Due</b> May 13 at 11:59pm | 100pts
+          </p>
         </li>
-        <p>
-          Multiple Modules| <b>Not available until</b> May 6 at 12:00am|{" "}
-          <b>Due</b> May 13 at 11:59pm | 100pts
-        </p>
-        <li className="wd-assignment-list-item"></li>
-        <a href="/Courses/5610/Assignments/5610" className="wd-assignment-link">
-          A2 CSS + BOOTSTRAP
-        </a>
-        <p>
-          Multiple Modules| <b>Not available until</b> May 13 at 12:00am|{" "}
-          <b>Due</b> May 20 at 11:59pm | 100pts
-        </p>
-        <li className="wd-assignment-list-item"></li>
-        <a href="/Courses/5610/Assignments/5610" className="wd-assignment-link">
-          HAVASCRIPT + REACT
-        </a>
-        <p>
-          Multiple Modules| <b>Not available until</b> May 20 at 12:00am|{" "}
-          <b>Due</b> May 27 at 11:59pm | 100pts
-        </p>
+
+        <li className="wd-assignment-list-item">
+          <Link
+            href="/Courses/5610/Assignments/5610"
+            className="wd-assignment-link"
+          >
+            A2 - CSS + BOOTSTRAP
+          </Link>
+          <p>
+            Multiple Modules | <b>Not available until</b> May 13 at 12:00am |{" "}
+            <b>Due</b> May 20 at 11:59pm | 100pts
+          </p>
+        </li>
+
+        <li className="wd-assignment-list-item">
+          <Link
+            href="/Courses/5610/Assignments/5610"
+            className="wd-assignment-link"
+          >
+            HAVASCRIPT + REACT
+          </Link>
+          <p>
+            Multiple Modules | <b>Not available until</b> May 20 at 12:00am |{" "}
+            <b>Due</b> May 27 at 11:59pm | 100pts
+          </p>
+        </li>
       </ul>
     </div>
   );
