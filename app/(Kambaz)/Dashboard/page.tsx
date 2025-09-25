@@ -55,7 +55,7 @@ export default function Dashboard() {
 
           <Link href="/Courses/5200" className="wd-dashboard-course-link">
             <Image
-              src="/Images/DBMS.jpg"
+              src="/Images/DBMS.JPG"
               width={200}
               height={150}
               alt="CS5200 DBMS course thumbnail"
