@@ -1,3 +1,4 @@
+import Image from "next/image";
 export default function Lab1() {
   return (
     <>
@@ -85,15 +86,23 @@ export default function Lab1() {
       <div id="wd-images">
         <h4>Image tag</h4>
         Loading an image from the internet: <br />
-        <img
+        <Image
           id="wd-starship"
-          width="400px"
           src="https://www.staradvertiser.com/wp-content/uploads/2021/08/web1_Starship-gap2.jpg"
+          alt="SpaceX Starship rocket"
+          width={400}
+          height={250} // height must be provided for <Image />
         />
         <br />
         Loading a local image:
         <br />
-        <img id="wd-teslabot" src="/images/teslabot.jpg" height="200px" />
+        <Image
+          id="wd-teslabot"
+          src="/images/teslabot.jpg"
+          alt="Tesla Bot humanoid robot"
+          width={200}
+          height={300} // adjust as needed to match aspect ratio
+        />
       </div>
       <div id="wd-forms">
         <h4>Form Elements</h4>
