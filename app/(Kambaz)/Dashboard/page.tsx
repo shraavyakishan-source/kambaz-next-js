@@ -9,7 +9,7 @@ export default function Dashboard() {
         <div className="wd-dashboard-course">
           <Link href="/Courses/5610" className="wd-dashboard-course-link">
             <Image
-              src="/images/reactjs.jpg"
+              src="/Images/reactjs.jpg"
               width={200}
               height={150}
               alt="CS5610 React JS course thumbnail"
@@ -26,7 +26,7 @@ export default function Dashboard() {
           <br />
           <Link href="/Courses/5800" className="wd-dashboard-course-link">
             <Image
-              src="/images/algorithms.jpg"
+              src="/Images/algorithms.jpg"
               width={200}
               height={150}
               alt="CS5800 Algorithms course thumbnail"
@@ -39,7 +39,7 @@ export default function Dashboard() {
           <br />
           <Link href="/Courses/5010" className="wd-dashboard-course-link">
             <Image
-              src="/images/pdp.jpg"
+              src="/Images/pdp.jpg"
               width={200}
               height={150}
               alt="CS5010 Programming Design and Paradigm course thumbnail"
@@ -55,7 +55,7 @@ export default function Dashboard() {
 
           <Link href="/Courses/5200" className="wd-dashboard-course-link">
             <Image
-              src="/images/DBMS.jpg"
+              src="/Images/DBMS.jpg"
               width={200}
               height={150}
               alt="CS5200 DBMS course thumbnail"

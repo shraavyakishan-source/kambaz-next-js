@@ -91,17 +91,17 @@ export default function Lab1() {
           src="https://www.staradvertiser.com/wp-content/uploads/2021/08/web1_Starship-gap2.jpg"
           alt="SpaceX Starship rocket"
           width={400}
-          height={250} // height must be provided for <Image />
+          height={250}
         />
         <br />
         Loading a local image:
         <br />
         <Image
           id="wd-teslabot"
-          src="/images/teslabot.jpg"
+          src="/Images/teslabot.jpg"
           alt="Tesla Bot humanoid robot"
           width={200}
-          height={300} // adjust as needed to match aspect ratio
+          height={300}
         />
       </div>
       <div id="wd-forms">
