@@ -17,7 +17,6 @@ export default function Dashboard() {
       <h2 id="wd-dashboard-published">Published Courses (12)</h2> <hr />
       <div id="wd-dashboard-courses">
         <Row xs={1} md={5} className="g-4">
-          {/* CS5610 React JS */}
           <Col className="wd-dashboard-course" style={{ width: "300px" }}>
             <Card>
               <Link
@@ -26,7 +25,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/images/reactjs.jpg"
+                  src="/Images/reactjs.jpg"
                   width="100%"
                   height={160}
                 />
@@ -55,7 +54,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/images/algorithms.jpg"
+                  src="/Images/algorithms.jpg"
                   width="100%"
                   height={160}
                 />
@@ -84,7 +83,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/images/pdp.jpg"
+                  src="/Images/pdp.jpg"
                   width="100%"
                   height={160}
                 />
@@ -113,7 +112,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/images/DBMS.jpg"
+                  src="/Images/DBMS.jpg"
                   width="100%"
                   height={160}
                 />
@@ -140,7 +139,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/images/img.jpeg"
+                  src="/Images/img.jpeg"
                   width="100%"
                   height={160}
                 />
@@ -167,7 +166,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/images/img.jpeg"
+                  src="/Images/img.jpeg"
                   width="100%"
                   height={160}
                 />
@@ -194,7 +193,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/images/img.jpeg"
+                  src="/Images/img.jpeg"
                   width="100%"
                   height={160}
                 />
