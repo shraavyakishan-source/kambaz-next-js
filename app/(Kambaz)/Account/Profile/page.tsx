@@ -45,7 +45,7 @@ export default function Profile() {
         className="mb-2 w-50"
       />
       <br />
-      <FormControl defaultValue="USER" className="mb-2 w-50" />
+      <FormControl defaultValue="User" className="mb-2 w-50" />
       <br />
       <Link href="Signin" className="btn btn-danger w-50 mt-3">
         Sign out

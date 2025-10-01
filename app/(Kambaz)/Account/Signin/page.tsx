@@ -7,7 +7,6 @@ export default function Signin() {
       <FormControl
         id="wd-username"
         placeholder="username"
-        defaultValue="Shraavya"
         className="mb-2 w-50"
       />
       <br />
