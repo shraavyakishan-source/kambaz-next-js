@@ -14,10 +14,10 @@ export default function Dashboard() {
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
-      <h2 id="wd-dashboard-published">Published Courses (12)</h2> <hr />
+      <h2 id="wd-dashboard-published">Published Courses (7)</h2> <hr />
       <div id="wd-dashboard-courses">
         <Row xs={1} md={5} className="g-4">
-          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+          <Col className="wd-dashboard-course" style={{ width: "270px" }}>
             <Card>
               <Link
                 href="/Courses/5610/Home"
@@ -25,7 +25,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/Images/reactjs.jpg"
+                  src="/Images/img.jpeg"
                   width="100%"
                   height={160}
                 />
@@ -46,7 +46,7 @@ export default function Dashboard() {
           </Col>
 
           {/* CS5800 Algorithms */}
-          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+          <Col className="wd-dashboard-course" style={{ width: "270px" }}>
             <Card>
               <Link
                 href="/Courses/5800/Home"
@@ -54,7 +54,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/Images/algorithms.jpg"
+                  src="/Images/img.jpeg"
                   width="100%"
                   height={160}
                 />
@@ -75,7 +75,7 @@ export default function Dashboard() {
           </Col>
 
           {/* CS5010 PDP */}
-          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+          <Col className="wd-dashboard-course" style={{ width: "270px" }}>
             <Card>
               <Link
                 href="/Courses/5010/Home"
@@ -83,7 +83,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/Images/pdp.jpg"
+                  src="/Images/img.jpeg"
                   width="100%"
                   height={160}
                 />
@@ -104,7 +104,7 @@ export default function Dashboard() {
           </Col>
 
           {/* CS5200 DBMS */}
-          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+          <Col className="wd-dashboard-course" style={{ width: "270px" }}>
             <Card>
               <Link
                 href="/Courses/5200/Home"
@@ -112,7 +112,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/Images/DBMS.JPG"
+                  src="/Images/img.jpeg"
                   width="100%"
                   height={160}
                 />
@@ -131,7 +131,7 @@ export default function Dashboard() {
               </Link>
             </Card>
           </Col>
-          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+          <Col className="wd-dashboard-course" style={{ width: "270px" }}>
             <Card>
               <Link
                 href="/Courses/5800/Home"
@@ -158,7 +158,7 @@ export default function Dashboard() {
               </Link>
             </Card>
           </Col>
-          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+          <Col className="wd-dashboard-course" style={{ width: "270px" }}>
             <Card>
               <Link
                 href="/Courses/5800/Home"
@@ -185,7 +185,7 @@ export default function Dashboard() {
               </Link>
             </Card>
           </Col>
-          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+          <Col className="wd-dashboard-course" style={{ width: "270px" }}>
             <Card>
               <Link
                 href="/Courses/5800/Home"
