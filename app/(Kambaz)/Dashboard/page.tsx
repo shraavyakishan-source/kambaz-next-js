@@ -112,7 +112,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/Images/DBMS.jpg"
+                  src="/Images/DBMS.JPG"
                   width="100%"
                   height={160}
                 />
