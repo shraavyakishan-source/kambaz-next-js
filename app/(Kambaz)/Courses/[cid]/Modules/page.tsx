@@ -42,7 +42,7 @@ export default function Modules() {
 
         <ListGroup className="rounded-0" id="wd-modules">
           {hasModules ? (
-            courseModules.map((module: any) => (
+            courseModules.map((module: Module) => (
               <ListGroupItem
                 key={module._id}
                 className="wd-module p-0 mb-5 fs-5 border-gray"
@@ -64,7 +64,7 @@ export default function Modules() {
                       border: "1px solid #ccc",
                     }}
                   >
-                    {module.lessons.map((lesson: any) => (
+                    {module.lessons.map((lesson: Lesson) => (
                       <ListGroupItem
                         key={lesson._id}
                         className="wd-lesson p-3 ps-1 d-flex align-items-center justify-content-between"
