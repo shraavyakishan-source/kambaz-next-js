@@ -67,7 +67,6 @@ export default function Lab3() {
       <Classes />
       <Styles />
       <Add a={3} b={4} />
-      <h3>Child Components</h3>
       <h4>Square of 4</h4>
       <Square>4</Square>
       <hr />

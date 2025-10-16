@@ -1,12 +1,19 @@
+"use client";
 import Modules from "../Modules/page";
-/*import CourseStatus from "./Status";*/
+import CourseStatus from "./Status";
+
 export default function Home() {
   return (
-    <div className="d-flex" id="wd-home">
-      <div className="flex-fill me-3">
+    <div id="wd-home" className="d-flex">
+      {/* Left side: Modules */}
+      <div className="flex-grow-1 me-4">
         <Modules />
       </div>
-      <div className="d-none d-lg-block"></div>
+
+      {/* Right side: Course Status */}
+      <div style={{ width: 320 }}>
+        <CourseStatus />
+      </div>
     </div>
   );
 }

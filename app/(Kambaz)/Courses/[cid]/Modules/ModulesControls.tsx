@@ -14,16 +14,46 @@ export default function ModulesControls() {
       id="wd-modules-controls"
       className="d-flex justify-content-end align-items-center gap-2 text-nowrap"
     >
-      <Button variant="secondary" size="lg" id="wd-collapse-all">
+      <Button
+        variant="secondary"
+        size="lg"
+        id="wd-collapse-all"
+        style={{
+          backgroundColor: "#e8ebed",
+          color: "#000",
+          border: "1px solid #ccc",
+          marginRight: "8px",
+        }}
+      >
         Collapse All
       </Button>
 
-      <Button variant="secondary" size="lg" id="wd-view-progress">
+      <Button
+        variant="secondary"
+        size="lg"
+        id="wd-view-progress"
+        style={{
+          backgroundColor: "#e8ebed",
+          color: "#000",
+          border: "1px solid #ccc",
+          marginRight: "8px",
+        }}
+      >
         View Progress
       </Button>
 
       <Dropdown>
-        <DropdownToggle variant="secondary" size="lg" id="wd-publish-all-btn">
+        <DropdownToggle
+          variant="secondary"
+          size="lg"
+          id="wd-publish-all-btn"
+          style={{
+            backgroundColor: "#e8ebed",
+            color: "#000",
+            border: "1px solid #ccc",
+            marginRight: "8px",
+          }}
+        >
           <GreenCheckmark /> Publish All
         </DropdownToggle>
         <DropdownMenu>
