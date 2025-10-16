@@ -7,9 +7,19 @@ import { BsGripVertical, BsSearch, BsThreeDotsVertical } from "react-icons/bs";
 import { FaCheckCircle } from "react-icons/fa";
 import { IoDocumentTextOutline } from "react-icons/io5";
 
+interface Assignment {
+  _id: string;
+  title: string;
+  course: string;
+  points?: number;
+  dueDate?: string;
+}
+
 export default function Assignments() {
-  const { cid } = useParams(); // course ID from the URL, e.g. RS101
-  const assignments = db.assignments.filter((a: any) => a.course === cid);
+  const { cid } = useParams<{ cid: string }>();
+  const assignments: Assignment[] = db.assignments.filter(
+    (a: Assignment) => a.course === cid
+  );
 
   return (
     <div className="p-3" style={{ maxWidth: "700px" }}>
@@ -48,7 +58,7 @@ export default function Assignments() {
           variant="flush"
           className="border-start border-3 border-success"
         >
-          {assignments.map((a: any) => (
+          {assignments.map((a) => (
             <ListGroup.Item key={a._id} className="d-flex align-items-center">
               <BsGripVertical className="me-2" />
               <IoDocumentTextOutline className="me-2 text-success" size={20} />
@@ -62,9 +72,10 @@ export default function Assignments() {
                 </Link>
                 <small className="text-muted d-block">
                   <span className="fw-bold text-danger">Multiple Modules</span>{" "}
-                  |Not available until May 6 at 12:00am | <br />
-                  <span className="text-dark">Due May 13 at 11:59pm</span> | 100
-                  pts
+                  | Not available until May 6 at 12:00am | <br />
+                  <span className="text-dark">
+                    Due May 13 at 11:59pm
+                  </span> | {a.points ?? 100} pts
                 </small>
               </div>
               <FaCheckCircle className="text-success ms-2" />

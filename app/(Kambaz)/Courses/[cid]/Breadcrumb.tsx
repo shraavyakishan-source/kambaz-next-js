@@ -3,7 +3,11 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import { FaAlignJustify } from "react-icons/fa";
 
-export default function Breadcrumb({ course }: { course: any }) {
+interface Course {
+  name: string | { title: string };
+}
+
+export default function Breadcrumb({ course }: { course: Course }) {
   const pathname = usePathname();
   const currentPage = pathname.split("/").pop();
 
@@ -20,7 +24,7 @@ export default function Breadcrumb({ course }: { course: any }) {
     >
       <FaAlignJustify className="me-3 fs-4" />
       <span>
-        {courseName} &gt;
+        {courseName} &gt;{" "}
         <span className="text-danger text-capitalize">{currentPage}</span>
       </span>
     </div>

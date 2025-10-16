@@ -1,11 +1,23 @@
 "use client";
 import { useParams } from "next/navigation";
 import * as db from "../../../Database";
-import { ListGroup, ListGroupItem, Button } from "react-bootstrap";
+import { ListGroup, ListGroupItem } from "react-bootstrap";
 import { BsGripVertical } from "react-icons/bs";
 import ModuleContrlButton from "./ModuleContrlButton";
 import LessonControlButtons from "./LessonControlButtons";
 import ModulesControls from "./ModulesControls";
+interface Lesson {
+  _id: string;
+  name: string;
+}
+
+interface Module {
+  _id: string;
+  name: string;
+  course: string;
+  lessons?: Lesson[];
+}
+
 {
   /*import { MdDoNotDisturbAlt, MdAnnouncement } from "react-icons/md";
 import { FaCheckCircle, FaHome, FaBell } from "react-icons/fa";
@@ -15,8 +27,8 @@ import { LiaFileImportSolid } from "react-icons/lia";*/
 
 export default function Modules() {
   const { cid } = useParams();
-  const allModules = db.modules || [];
-  const courseModules = allModules.filter((m: any) => m.course === cid);
+  const allModules: Module[] = db.modules || [];
+  const courseModules = allModules.filter((m: Module) => m.course === cid);
 
   const hasModules = courseModules.length > 0;
 
