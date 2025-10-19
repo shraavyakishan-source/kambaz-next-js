@@ -162,7 +162,7 @@ export default function AssignmentEditorBootstrap() {
                 type="datetime-local"
                 id="wd-available-date"
                 className="form-control w-auto"
-                defaultValue="2024-05-16T23:59"
+                defaultValue="2024-05-06T23:59"
               />
             </div>
             <div>
