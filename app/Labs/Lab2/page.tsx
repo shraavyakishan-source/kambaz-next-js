@@ -6,12 +6,26 @@ import Margins from "./Margins";
 import Corners from "./Corners";
 import Dimension from "./Dimension";
 import Positions from "./Positions";
+import Zindex from "./Zindex";
+import Float from "./Float";
+import GridLayout from "./GridLayout";
+import Flex from "./Flex";
+import ReactIcons from "./ReactIcons";
+import { Container } from "react-bootstrap";
+import BootstrapGrids from "./BootstrapGrids";
+import ScreenSizeLabel from "./ScreenSizeLabel";
+import BootstrapTables from "./BootstrapTables";
+import BootstrapLists from "./BootstrapLists";
+import BootstrapForms from "./BootstrapForms";
+import BootstrapNavigation from "./BootstrapNavigation";
 import "./index.css";
 export default function Lab2() {
   return (
-    <div id="wd-lab2">
-      <h2>Lab 2 - Cascading Style Sheets</h2>
-      <h3>Styling with the STYLE attribute</h3>
+    <>
+      <Container>
+        <h2>Lab 2 - Cascading Style Sheets</h2>
+        <h3>Styling with the STYLE attribute</h3>
+      </Container>
       <p style={{ backgroundColor: "blue", color: "white" }}>
         Style attribute allows configuring look and feel right on the element.
         Although its very convenient it is considered bad practice and you
@@ -23,10 +37,8 @@ export default function Lab2() {
         Although its very convenient it is considered bad practice and you
         should avoid using the style attribute
       </p>
-
       <ForegroundColors />
       <BackgroundColors />
-
       <div id="wd-css-id-selectors">
         <h3>ID selectors</h3>
         <p id="wd-id-selector-1">
@@ -79,6 +91,18 @@ export default function Lab2() {
       <Corners />
       <Dimension />
       <Positions />
-    </div>
+      <Zindex />
+      <Float />
+      <br></br>
+      <GridLayout />
+      <Flex />
+      <ReactIcons />
+      <BootstrapGrids />
+      <ScreenSizeLabel />
+      <BootstrapTables />
+      <BootstrapLists />
+      <BootstrapForms />
+      <BootstrapNavigation />
+    </>
   );
 }

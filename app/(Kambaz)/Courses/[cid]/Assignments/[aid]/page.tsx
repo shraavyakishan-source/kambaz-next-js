@@ -1,133 +1,196 @@
-export default function AssignmentEditor() {
+"use client";
+import React from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import * as db from "../../../../Database";
+import "bootstrap/dist/css/bootstrap.min.css";
+
+export default function AssignmentEditorBootstrap() {
+  const { cid, aid } = useParams(); // e.g., RS101, A101
+  const assignment = db.assignments.find((a) => a._id === aid);
+
+  if (!assignment) {
+    return (
+      <div className="container py-4">
+        <h3 className="text-danger">Assignment not found.</h3>
+      </div>
+    );
+  }
+
   return (
-    <div id="wd-assignments-editor">
-      <label htmlFor="wd-name">Assignment Name</label>
-      <input id="wd-name" defaultValue="A1 - ENV + HTML" />
-      <br />
-      <br />
-      <textarea
-        id="wd-description"
-        defaultValue={`The assignment is available online Submit a link to the landing page of
-your web application running on Netlify. The landing page should include
-the following: Your full name and section Links to each of the lab
-assignments Link to the Kambaz application Links to all relevant source
-code repositories.`}
-      />
-      <br />
-      <table>
-        <tbody>
-          <tr>
-            <td align="right" valign="top">
-              <label htmlFor="wd-points">Points</label>
-            </td>
-            <td>
-              <input id="wd-points" defaultValue="100" />
-            </td>
-          </tr>
-          <tr>
-            <td align="right" valign="top">
-              <label>Assignment Group</label>
-            </td>
-            <td>
-              <select defaultValue="Assignment">
-                <option defaultValue="Assignment">ASSIGNMENTS</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td align="right" valign="top">
-              <label>Display Grade as</label>
-            </td>
-            <td>
-              <select defaultValue="Percentage">
-                <option defaultValue="Percentage">Percentage</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td align="right" valign="top">
-              <label>Submission Type</label>
-            </td>
-            <td>
-              <select defaultValue="Online">
-                <option defaultValue="Online">Online</option>
-              </select>
-            </td>
-          </tr>
+    <div id="wd-assignments-editor" className="container py-4">
+      {/* Assignment Title */}
+      <div className="mb-4">
+        <label htmlFor="wd-name" className="form-label">
+          Assignment Name
+        </label>
+        <input
+          id="wd-name"
+          className="form-control"
+          defaultValue={assignment.title}
+        />
+      </div>
 
-          <tr>
-            <td></td>
-            <td>
-              <label>Online Entry Options</label>
-              <br />
-              <input type="checkbox" id="wd-chkbox-Text" />
-              <label htmlFor="wd-chkbox-Text"> Text Entry</label>
-              <br />
+      {/* Description */}
+      <div className="card mb-4">
+        <div className="card-body">
+          <p>
+            The assignment is
+            <span className="fw-bold text-danger"> available online</span>.
+          </p>
+          <p>
+            Submit your work for <strong>{assignment.title}</strong> in course{" "}
+            <strong>{cid}</strong>.
+          </p>
+          <p>Include all necessary project files and documentation.</p>
+        </div>
+      </div>
 
-              <input type="checkbox" id="wd-chkbox-URL" />
-              <label htmlFor="wd-chkbox-URL"> Website URL</label>
-              <br />
+      {/* Form Fields */}
+      <form>
+        <div className="row g-3 align-items-start">
+          {/* Points */}
+          <div className="col-md-4 text-md-end">
+            <label htmlFor="wd-points" className="form-label">
+              Points
+            </label>
+          </div>
+          <div className="col-md-8">
+            <input
+              id="wd-points"
+              className="form-control w-50"
+              defaultValue="100"
+            />
+          </div>
 
-              <input type="checkbox" id="wd-chkbox-Recordings" />
-              <label htmlFor="wd-chkbox-Recordings"> Media Recordings</label>
-              <br />
+          {/* Assignment Group */}
+          <div className="col-md-4 text-md-end">
+            <label className="form-label">Assignment Group</label>
+          </div>
+          <div className="col-md-8">
+            <select className="form-select w-50" defaultValue="Assignment">
+              <option value="Assignment">ASSIGNMENTS</option>
+            </select>
+          </div>
 
-              <input type="checkbox" id="wd-chkbox-Annotation" />
-              <label htmlFor="wd-chkbox-Annotation"> Student Annotation</label>
-              <br />
+          {/* Grade Display */}
+          <div className="col-md-4 text-md-end">
+            <label className="form-label">Display Grade as</label>
+          </div>
+          <div className="col-md-8">
+            <select className="form-select w-50" defaultValue="Percentage">
+              <option value="Percentage">Percentage</option>
+            </select>
+          </div>
 
-              <input type="checkbox" id="wd-chkbox-File" />
-              <label htmlFor="wd-chkbox-File"> File Uploads</label>
-            </td>
-          </tr>
+          {/* Submission Type */}
+          <div className="col-md-4 text-md-end">
+            <label className="form-label">Submission Type</label>
+          </div>
+          <div className="col-md-8">
+            <select className="form-select w-50" defaultValue="Online">
+              <option value="Online">Online</option>
+            </select>
+          </div>
 
-          <tr>
-            <td align="right" valign="top">
-              <label htmlFor="wd-Everyone">Assign</label>
-            </td>
-            <td>
-              <label htmlFor="wd-Everyone">Assign to</label>
-              <br />
-              <input id="wd-Everyone" defaultValue="Everyone" />
-            </td>
-          </tr>
+          {/* Online Entry Options */}
+          <div className="col-md-4 text-md-end">
+            <label className="form-label">Online Entry Options</label>
+          </div>
+          <div className="col-md-8">
+            {[
+              "Text Entry",
+              "Website URL",
+              "Media Recordings",
+              "Student Annotation",
+              "File Uploads",
+            ].map((option, idx) => (
+              <div className="form-check" key={idx}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id={`chk${idx}`}
+                  defaultChecked={option === "Website URL"}
+                />
+                <label className="form-check-label" htmlFor={`chk${idx}`}>
+                  {option}
+                </label>
+              </div>
+            ))}
+          </div>
 
-          <tr>
-            <td></td>
-            <td>
-              <label htmlFor="wd-due-date">Due</label>
-              <br />
-              <input type="date" defaultValue="2024-05-13" id="wd-due-date" />
-            </td>
-          </tr>
+          {/* Assign To */}
+          <div className="col-md-4 text-md-end">
+            <label htmlFor="wd-Everyone" className="form-label">
+              Assign
+            </label>
+          </div>
+          <div className="col-md-8">
+            <label htmlFor="wd-Everyone" className="form-label">
+              Assign to
+            </label>
+            <input
+              id="wd-Everyone"
+              className="form-control w-50"
+              defaultValue="Everyone"
+            />
+          </div>
 
-          <tr>
-            <td></td>
-            <td>
-              <label htmlFor="wd-available-date">Available from</label>
-              &nbsp;&nbsp;&nbsp;
-              <label htmlFor="wd-until-date">Until</label>
-              <br />
+          {/* Due Date */}
+          <div className="col-md-4 text-md-end">
+            <label htmlFor="wd-due-date" className="form-label">
+              Due
+            </label>
+          </div>
+          <div className="col-md-8">
+            <input
+              type="datetime-local"
+              id="wd-due-date"
+              className="form-control w-50"
+              defaultValue="2024-05-13T23:59"
+            />
+          </div>
+
+          {/* Available and Until Dates */}
+          <div className="col-md-4 text-md-end"></div>
+          <div className="col-md-8 d-flex gap-3">
+            <div>
+              <label htmlFor="wd-available-date" className="form-label">
+                Available from
+              </label>
+              <input
+                type="datetime-local"
+                id="wd-available-date"
+                className="form-control w-auto"
+                defaultValue="2024-05-06T23:59"
+              />
+            </div>
+            <div>
+              <label htmlFor="wd-until-date" className="form-label">
+                Until
+              </label>
               <input
                 type="date"
-                defaultValue="2024-05-06"
-                id="wd-available-date"
+                id="wd-until-date"
+                className="form-control w-auto"
               />
-              &nbsp;&nbsp;
-              <input type="date" defaultValue="2024-05-20" id="wd-until-date" />
-            </td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colSpan={3}></td>
-            <td>
-              <button>Cancel</button>
-              <button>Save</button>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="mt-4 d-flex justify-content-end gap-2">
+          <Link
+            href={`/Courses/${cid}/Assignments`}
+            className="btn btn-outline-secondary"
+          >
+            Cancel
+          </Link>
+          <Link href={`/Courses/${cid}/Assignments`} className="btn btn-danger">
+            Save
+          </Link>
+        </div>
+      </form>
     </div>
   );
 }
