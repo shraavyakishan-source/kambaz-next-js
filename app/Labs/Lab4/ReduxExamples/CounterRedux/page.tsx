@@ -3,7 +3,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { increment, decrement } from "./counterReducer";
 import React from "react";
 export default function CounterRedux() {
-  const { count } = useSelector((state: any) => state.counterReducer);
+  const { count } = useSelector(
+    (state: { counterReducer: { count: number } }) => state.counterReducer
+  );
   const dispatch = useDispatch();
   return (
     <div id="wd-counter-redux">

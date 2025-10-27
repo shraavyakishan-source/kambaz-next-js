@@ -1,5 +1,6 @@
 "use client";
 import { useSelector, useDispatch } from "react-redux";
+import type { AppDispatch } from "../../store";
 import { useState } from "react";
 import { add } from "./addReducer";
 import { Button, FormControl } from "react-bootstrap";
@@ -7,8 +8,10 @@ import React from "react";
 export default function AddRedux() {
   const [a, setA] = useState(12);
   const [b, setB] = useState(23);
-  const { sum } = useSelector((state: any) => state.addReducer);
-  const dispatch = useDispatch();
+  const { sum } = useSelector(
+    (state: { addReducer: { sum: number } }) => state.addReducer
+  );
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <div className="w-25" id="wd-add-redux">
       <h2>Passing Data to Reducers</h2>
@@ -19,12 +22,12 @@ export default function AddRedux() {
       <FormControl
         type="number"
         defaultValue={a}
-        onChange={(e) => setA(parseInt(e.target.value))}
+        onChange={(e) => setA(parseInt(e.target.value) || 0)}
       />
       <FormControl
         type="number"
         defaultValue={b}
-        onChange={(e) => setB(parseInt(e.target.value))}
+        onChange={(e) => setB(parseInt(e.target.value) || 0)}
       />
       <Button id="wd-add-redux-click" onClick={() => dispatch(add({ a, b }))}>
         Add Redux
