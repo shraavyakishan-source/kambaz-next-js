@@ -1,10 +1,15 @@
 "use client";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { ListGroup, ListGroupItem } from "react-bootstrap";
+import { useSelector } from "react-redux";
+import type { RootState } from "./store";
 
 export default function ArrayStateVariable() {
   const [array, setArray] = useState([1, 2, 3, 4, 5]);
+
+  // ✅ Now strongly typed — no "any"
+  const { todos } = useSelector((state: RootState) => state.todosReducer);
 
   const addElement = () => {
     setArray([...array, Math.floor(Math.random() * 100)]);
@@ -21,7 +26,7 @@ export default function ArrayStateVariable() {
         Add Element
       </button>
 
-      <ul className="list-group">
+      <ul className="list-group mb-3">
         {array.map((item, index) => (
           <li
             key={index}
@@ -29,7 +34,7 @@ export default function ArrayStateVariable() {
           >
             <strong>{item}</strong>
             <button
-              className="btn btn-danger btn-sm  ms-auto me-1"
+              className="btn btn-danger btn-sm ms-auto me-1"
               onClick={() => deleteElement(index)}
             >
               Delete
@@ -37,6 +42,16 @@ export default function ArrayStateVariable() {
           </li>
         ))}
       </ul>
+
+      <hr />
+
+      <h4>Todos from Redux Store</h4>
+      <ListGroup>
+        {todos.map((todo) => (
+          <ListGroupItem key={todo.id}>{todo.title}</ListGroupItem>
+        ))}
+      </ListGroup>
+
       <hr />
     </div>
   );

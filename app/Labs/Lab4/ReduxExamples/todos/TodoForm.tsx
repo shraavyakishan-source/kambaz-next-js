@@ -1,33 +1,31 @@
+"use client";
 import React from "react";
 import { Button, FormControl, ListGroupItem } from "react-bootstrap";
-export default function TodoForm({
-  todo,
-  setTodo,
-  addTodo,
-  updateTodo,
-}: {
-  todo: { id: string; title: string };
-  setTodo: (todo: { id: string; title: string }) => void;
-  addTodo: (todo: { id: string; title: string }) => void;
-  updateTodo: (todo: { id: string; title: string }) => void;
-}) {
+import { useSelector, useDispatch } from "react-redux";
+import { addTodo, updateTodo, setTodo } from "./todosReducer";
+import type { RootState, AppDispatch } from "../../store";
+export default function TodoForm() {
+  const { todo } = useSelector((state: RootState) => state.todosReducer);
+
+  const dispatch = useDispatch<AppDispatch>();
+
   return (
-    <ListGroupItem className="d-flex gap-2">
+    <ListGroupItem className="d-flex gap-2 align-items-center">
       <FormControl
         value={todo.title}
-        onChange={(e) => setTodo({ ...todo, title: e.target.value })}
+        onChange={(e) => dispatch(setTodo({ ...todo, title: e.target.value }))}
         className="flex-grow-1"
       />
       <Button
-        className="btn btn-warning"
-        onClick={() => addTodo(todo)}
+        className="btn btn-success"
+        onClick={() => dispatch(addTodo(todo))}
         id="wd-add-todo-click"
       >
         Update
       </Button>
       <Button
-        className="btn btn-success"
-        onClick={() => updateTodo(todo)}
+        className="btn btn-warning"
+        onClick={() => dispatch(updateTodo(todo))}
         id="wd-update-todo-click"
       >
         Add

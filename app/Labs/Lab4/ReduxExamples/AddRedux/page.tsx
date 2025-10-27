@@ -1,17 +1,28 @@
 "use client";
 import { useSelector, useDispatch } from "react-redux";
 import type { AppDispatch } from "../../store";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { add } from "./addReducer";
 import { Button, FormControl } from "react-bootstrap";
 import React from "react";
+
 export default function AddRedux() {
   const [a, setA] = useState(12);
   const [b, setB] = useState(23);
+  const [isClient, setIsClient] = useState(false);
+
   const { sum } = useSelector(
     (state: { addReducer: { sum: number } }) => state.addReducer
   );
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="w-25" id="wd-add-redux">
       <h2>Passing Data to Reducers</h2>
