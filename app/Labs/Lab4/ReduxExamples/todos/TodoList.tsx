@@ -1,5 +1,5 @@
 "use client";
-import { Button, FormControl, ListGroup, ListGroupItem } from "react-bootstrap";
+import { ListGroup } from "react-bootstrap";
 import React from "react";
 import { useState } from "react";
 import TodoForm from "./TodoForm";
@@ -10,7 +10,7 @@ export default function TodoList() {
     { id: "2", title: "Learn Node" },
   ]);
   const [todo, setTodo] = useState({ id: "-1", title: "Learn Mongo" });
-  const addTodo = (todo: any) => {
+  const addTodo = (todo: { id: string; title: string }) => {
     const newTodos = [
       ...todos,
       { ...todo, id: new Date().getTime().toString() },
@@ -22,7 +22,7 @@ export default function TodoList() {
     const newTodos = todos.filter((todo) => todo.id !== id);
     setTodos(newTodos);
   };
-  const updateTodo = (todo: any) => {
+  const updateTodo = (todo: { id: string; title: string }) => {
     const newTodos = todos.map((item) => (item.id === todo.id ? todo : item));
     setTodos(newTodos);
     setTodo({ id: "-1", title: "" });
@@ -38,7 +38,12 @@ export default function TodoList() {
           updateTodo={updateTodo}
         />
         {todos.map((todo) => (
-          <TodoItem todo={todo} deleteTodo={deleteTodo} setTodo={setTodo} />
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            deleteTodo={deleteTodo}
+            setTodo={setTodo}
+          />
         ))}
       </ListGroup>
       <hr />
