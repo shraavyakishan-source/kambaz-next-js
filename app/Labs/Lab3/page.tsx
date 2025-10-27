@@ -31,6 +31,7 @@ import Highlight from "./Highlight";
 import PathParameters from "./PathParameters";
 import TodoItem from "./todos/TodoItem";
 import TodoList from "./todos/TodoList";
+import React from "react";
 export default function Lab3() {
   console.log("Hello World!");
   return (
