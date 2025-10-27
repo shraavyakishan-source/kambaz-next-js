@@ -7,7 +7,15 @@ interface Course {
   name: string | { title: string };
 }
 
-export default function Breadcrumb({ course }: { course: Course }) {
+interface BreadcrumbProps {
+  course: Course;
+  onToggleSidebar: () => void; // <-- callback to toggle sidebar
+}
+
+export default function Breadcrumb({
+  course,
+  onToggleSidebar,
+}: BreadcrumbProps) {
   const pathname = usePathname();
   const currentPage = pathname.split("/").pop();
 
@@ -22,7 +30,13 @@ export default function Breadcrumb({ course }: { course: Course }) {
       className="text-danger fs-5 mb-2 d-flex align-items-center"
       style={{ paddingTop: "10px" }}
     >
-      <FaAlignJustify className="me-3 fs-4" />
+      {/* Hamburger icon */}
+      <FaAlignJustify
+        className="me-3 fs-4"
+        style={{ cursor: "pointer" }}
+        onClick={onToggleSidebar} // <-- trigger toggle
+      />
+
       <span>
         {courseName} &gt;{" "}
         <span className="text-danger text-capitalize">{currentPage}</span>

@@ -1,7 +1,11 @@
-import { ReactNode } from "react";
+"use client";
+
+import { ReactNode, useState } from "react";
 import CourseNavigation from "./Navigation";
-import { courses } from "../../Database";
 import Breadcrumb from "./Breadcrumb";
+import { useSelector } from "react-redux";
+import { useParams } from "next/navigation";
+import React from "react";
 
 interface Course {
   _id: string;
@@ -15,37 +19,34 @@ interface Course {
   author?: string;
 }
 
-interface CoursesLayoutProps {
-  children: ReactNode;
-  params: Promise<{ cid: string }>;
-}
+export default function CoursesLayout({ children }: { children: ReactNode }) {
+  const { cid } = useParams(); // get course id from URL
+  const { courses } = useSelector((state: any) => state.coursesReducer); // read from Redux store
 
-export default async function CoursesLayout({
-  children,
-  params,
-}: Readonly<CoursesLayoutProps>) {
-  const { cid } = await params;
+  const course: Course | undefined = courses.find((c: any) => c._id === cid);
 
-  // Find the course by ID
-  const course: Course | undefined = courses.find(
-    (course) => course._id === cid
-  );
+  // ✅ Sidebar visibility state
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const toggleSidebar = () => setIsSidebarVisible(!isSidebarVisible);
 
-  // Handle course not found
   if (!course) {
-    return <div>Course not found</div>; // Or throw an error
+    return <div>Course not found</div>;
   }
 
   return (
     <div id="wd-courses">
-      <Breadcrumb course={course} />
+      {/* Breadcrumb with working toggle */}
+      <Breadcrumb course={course} onToggleSidebar={toggleSidebar} />
       <hr />
       <table>
         <tbody>
           <tr>
-            <td valign="top" width="200">
-              <CourseNavigation />
-            </td>
+            {/* Conditionally render sidebar */}
+            {isSidebarVisible && (
+              <td valign="top" width="200">
+                <CourseNavigation />
+              </td>
+            )}
             <td valign="top" width="100%">
               {children}
             </td>

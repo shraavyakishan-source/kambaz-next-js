@@ -6,13 +6,18 @@ import { FaInbox, FaRegCircleUser } from "react-icons/fa6";
 import { ListGroup, ListGroupItem } from "react-bootstrap";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import React from "react";
 export default function KambazNavigation() {
   const pathname = usePathname();
 
   const links = [
     { label: "Account", path: "/Account", icon: FaRegCircleUser },
     { label: "Dashboard", path: "/Dashboard", icon: AiOutlineDashboard },
-    { label: "Courses", path: "/Courses/5610/Home", icon: LiaBookSolid },
+    {
+      label: "Courses",
+      path: "/Courses/2ab785d2-1397-4459-8b8a-724dba0add2b/Home",
+      icon: LiaBookSolid,
+    },
     { label: "Calendar", path: "/Calendar", icon: IoCalendarOutline },
     { label: "Inbox", path: "/Inbox", icon: FaInbox },
     { label: "Labs", path: "/Labs/Lab1", icon: LiaCogSolid },
