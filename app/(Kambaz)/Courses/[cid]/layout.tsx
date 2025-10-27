@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 import CourseNavigation from "./Navigation";
 import Breadcrumb from "./Breadcrumb";
 import { useSelector } from "react-redux";
+import type { RootState } from "../../store";
 import { useParams } from "next/navigation";
 import React from "react";
 
@@ -21,9 +22,9 @@ interface Course {
 
 export default function CoursesLayout({ children }: { children: ReactNode }) {
   const { cid } = useParams(); // get course id from URL
-  const { courses } = useSelector((state: any) => state.coursesReducer); // read from Redux store
+  const { courses } = useSelector((state: RootState) => state.coursesReducer); // read from Redux store
 
-  const course: Course | undefined = courses.find((c: any) => c._id === cid);
+  const course: Course | undefined = courses.find((c: Course) => c._id === cid);
 
   // ✅ Sidebar visibility state
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);

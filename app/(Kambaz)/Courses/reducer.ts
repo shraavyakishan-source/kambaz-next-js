@@ -2,6 +2,19 @@ import { createSlice } from "@reduxjs/toolkit";
 import { courses as initialCourses } from "../Database";
 import { v4 as uuidv4 } from "uuid";
 
+interface Course {
+  _id: string;
+  name: string;
+  number: string;
+  startDate: string;
+  endDate: string;
+  department: string;
+  credits: number;
+  description: string;
+  author?: string;
+  image?: string;
+}
+
 const initialState = {
   courses: initialCourses,
 };
@@ -15,12 +28,12 @@ const coursesSlice = createSlice({
     },
     deleteCourse: (state, { payload: courseId }) => {
       state.courses = state.courses.filter(
-        (course: any) => course._id !== courseId
+        (course: Course) => course._id !== courseId
       );
     },
     updateCourse: (state, { payload: updatedCourse }) => {
       const index = state.courses.findIndex(
-        (c: any) => c._id === updatedCourse._id
+        (c: Course) => c._id === updatedCourse._id
       );
       if (index !== -1) state.courses[index] = updatedCourse;
     },

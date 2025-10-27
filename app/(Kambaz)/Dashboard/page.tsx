@@ -16,12 +16,26 @@ import {
   FormControl,
 } from "react-bootstrap";
 import { addNewCourse, deleteCourse, updateCourse } from "../Courses/reducer";
+import type { RootState } from "../store";
+
+interface Course {
+  _id: string;
+  name: string;
+  number: string;
+  startDate: string;
+  endDate: string;
+  department?: string;
+  credits?: number;
+  description: string;
+  author?: string;
+  image?: string;
+}
 
 export default function Dashboard() {
   const dispatch = useDispatch();
-  const { courses } = useSelector((state: any) => state.coursesReducer);
+  const { courses } = useSelector((state: RootState) => state.coursesReducer);
 
-  const [course, setCourse] = useState<any>({
+  const [course, setCourse] = useState<Course>({
     _id: "0",
     name: "New Course",
     number: "New Number",
@@ -86,7 +100,7 @@ export default function Dashboard() {
       <hr />
 
       <Row xs={1} md={3} className="g-4">
-        {courses.map((c: any) => (
+        {courses.map((c: Course) => (
           <Col key={c._id}>
             <Card style={{ width: "290px" }}>
               <Link

@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import * as db from "../../../Database";
 import { ListGroup, ListGroupItem } from "react-bootstrap";
@@ -6,6 +7,7 @@ import { BsGripVertical } from "react-icons/bs";
 import ModuleContrlButton from "./ModuleContrlButton";
 import LessonControlButtons from "./LessonControlButtons";
 import ModulesControls from "./ModulesControls";
+import React from "react";
 interface Lesson {
   _id: string;
   name: string;
@@ -31,6 +33,7 @@ export default function Modules() {
   const courseModules = allModules.filter((m: Module) => m.course === cid);
 
   const hasModules = courseModules.length > 0;
+  const [modules, setModules] = useState<Module[]>(courseModules);
 
   return (
     <div className="d-flex">
