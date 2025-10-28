@@ -2,12 +2,17 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import * as db from "../../../Database";
-import { ListGroup, ListGroupItem } from "react-bootstrap";
+import { ListGroup, ListGroupItem, FormControl } from "react-bootstrap";
 import { BsGripVertical } from "react-icons/bs";
 import ModuleContrlButton from "./ModuleContrlButton";
 import LessonControlButtons from "./LessonControlButtons";
 import ModulesControls from "./ModulesControls";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { addModule, editModule, updateModule, deleteModule } from "./reducer";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { useSelector, useDispatch } from "react-redux";
 import React from "react";
+
 interface Lesson {
   _id: string;
   name: string;
@@ -18,6 +23,7 @@ interface Module {
   name: string;
   course: string;
   lessons?: Lesson[];
+  editing?: boolean;
 }
 
 {
@@ -29,23 +35,49 @@ import { LiaFileImportSolid } from "react-icons/lia";*/
 
 export default function Modules() {
   const { cid } = useParams();
-  const allModules: Module[] = db.modules || [];
-  const courseModules = allModules.filter((m: Module) => m.course === cid);
 
-  const hasModules = courseModules.length > 0;
-  const [modules, setModules] = useState<Module[]>(courseModules);
+  // Get Redux modules state
+  const { modules } = useSelector((state: any) => state.modulesReducer);
+  const dispatch = useDispatch();
+
+  // State variable for the module name (used in ModuleEditor dialog)
+  const [moduleName, setModuleName] = useState("");
+
+  // FUNCTION TO ADD A NEW MODULE
+  // Using Redux instead of local setModules
+  const handleAddModule = () => {
+    if (!moduleName.trim()) return;
+    dispatch(addModule({ name: moduleName, course: cid }));
+    setModuleName(""); // clear the input after dispatching
+  };
+
+  // FUNCTION TO DELETE A MODULE (Redux)
+  const handleDeleteModule = (moduleId: string) => {
+    dispatch(deleteModule(moduleId));
+  };
+
+  // FUNCTION TO EDIT/RENAME A MODULE (Redux)
+  const handleEditModule = (moduleId: string) => {
+    dispatch(editModule(moduleId));
+  };
 
   return (
     <div className="d-flex">
       {/* Left: Modules list */}
       <div className="flex-grow-1 me-4">
         <div className="mb-4">
-          <ModulesControls />
+          {/* Pass Redux-based addModule logic */}
+          <ModulesControls
+            moduleName={moduleName}
+            setModuleName={setModuleName}
+            addModule={handleAddModule}
+          />
         </div>
 
         <ListGroup className="rounded-0" id="wd-modules">
-          {hasModules ? (
-            courseModules.map((module: Module) => (
+          {modules
+            .filter((module: Module) => module.course === cid)
+            .map((module: Module) => (
               <ListGroupItem
                 key={module._id}
                 className="wd-module p-0 mb-5 fs-5 border-gray"
@@ -53,11 +85,38 @@ export default function Modules() {
                 <div className="wd-title p-3 ps-2 bg-secondary d-flex align-items-center justify-content-between">
                   <div>
                     <BsGripVertical className="me-2 fs-3" />
-                    {module.name}
+                    {/* Show module name or editable field */}
+                    {!module.editing && module.name}
+                    {module.editing && (
+                      <FormControl
+                        className="w-50 d-inline-block"
+                        onChange={(e) =>
+                          dispatch(
+                            updateModule({ ...module, name: e.target.value })
+                          )
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            dispatch(
+                              updateModule({ ...module, editing: false })
+                            );
+                          }
+                        }}
+                        defaultValue={module.name}
+                        autoFocus
+                      />
+                    )}
                   </div>
-                  <ModuleContrlButton />
+
+                  {/* Control buttons for edit/delete */}
+                  <ModuleContrlButton
+                    moduleId={module._id}
+                    deleteModule={handleDeleteModule}
+                    editModule={handleEditModule}
+                  />
                 </div>
 
+                {/* Render lessons only if this module has any */}
                 {module.lessons && module.lessons.length > 0 && (
                   <ListGroup
                     className="wd-lessons rounded-0"
@@ -74,7 +133,6 @@ export default function Modules() {
                       >
                         <div>
                           <BsGripVertical className="me-2 fs-3" />
-
                           {lesson.name}
                         </div>
                         <LessonControlButtons />
@@ -83,85 +141,7 @@ export default function Modules() {
                   </ListGroup>
                 )}
               </ListGroupItem>
-            ))
-          ) : (
-            <>
-              <ListGroupItem className="wd-module p-0 mb-4 fs-5 border-gray">
-                <div className="wd-title p-3 ps-2 bg-secondary d-flex align-items-center">
-                  <BsGripVertical className="me-2 fs-3" />
-                  Week 1
-                  <ModuleContrlButton />
-                  <LessonControlButtons />
-                </div>
-                <ListGroup className="wd-lessons rounded-0">
-                  <ListGroupItem className="wd-lesson p-3 ps-1 d-flex align-items-center">
-                    <BsGripVertical className="me-2 fs-3" />
-                    <span className="flex-grow-1">LEARNING OBJECTIVES</span>
-                    <LessonControlButtons />
-                  </ListGroupItem>
-
-                  <ListGroupItem className="wd-lesson p-3 ps-1 d-flex align-items-center">
-                    <BsGripVertical className="me-2 fs-3" />
-                    <span className="flex-grow-1">
-                      Introduction to the course
-                    </span>
-                    <LessonControlButtons />
-                  </ListGroupItem>
-
-                  <ListGroupItem className="wd-lesson p-3 ps-1 d-flex align-items-center">
-                    <BsGripVertical className="me-2 fs-3" />
-                    <span className="flex-grow-1">
-                      Learn what is Web Development
-                    </span>
-                    <LessonControlButtons />
-                  </ListGroupItem>
-
-                  <ListGroupItem className="wd-lesson p-3 ps-1 d-flex align-items-center">
-                    <BsGripVertical className="me-2 fs-3" />
-                    <span className="flex-grow-1">LESSON 1</span>
-                    <LessonControlButtons />
-                  </ListGroupItem>
-
-                  <ListGroupItem className="wd-lesson p-3 ps-1 d-flex align-items-center">
-                    <BsGripVertical className="me-2 fs-3" />
-                    <span className="flex-grow-1">LESSON 2</span>
-                    <LessonControlButtons />
-                  </ListGroupItem>
-                </ListGroup>
-              </ListGroupItem>
-
-              {/* small spacer */}
-              <div style={{ height: 8 }} />
-
-              <ListGroupItem className="wd-module p-0 mb-4 fs-5 border-gray">
-                <div className="wd-title p-3 ps-2 bg-secondary d-flex align-items-center">
-                  <BsGripVertical className="me-2 fs-3" />
-                  Week 2
-                  <ModuleContrlButton />
-                  <LessonControlButtons />
-                </div>
-                <ListGroup className="wd-lessons rounded-0">
-                  <ListGroupItem className="wd-lesson p-3 ps-1 d-flex align-items-center">
-                    <BsGripVertical className="me-2 fs-3" />
-                    <span className="flex-grow-1">LEARNING OBJECTIVES</span>
-                    <LessonControlButtons />
-                  </ListGroupItem>
-
-                  <ListGroupItem className="wd-lesson p-3 ps-1 d-flex align-items-center">
-                    <BsGripVertical className="me-2 fs-3" />
-                    <span className="flex-grow-1">LESSON 1</span>
-                    <LessonControlButtons />
-                  </ListGroupItem>
-
-                  <ListGroupItem className="wd-lesson p-3 ps-1 d-flex align-items-center">
-                    <BsGripVertical className="me-2 fs-3" />
-                    <span className="flex-grow-1">LESSON 2</span>
-                    <LessonControlButtons />
-                  </ListGroupItem>
-                </ListGroup>
-              </ListGroupItem>
-            </>
-          )}
+            ))}
         </ListGroup>
       </div>
 

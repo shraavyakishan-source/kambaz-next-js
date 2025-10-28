@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import Modules from "../Modules/page";
 import CourseStatus from "./Status";
 

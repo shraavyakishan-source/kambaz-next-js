@@ -1,3 +1,5 @@
+"use client";
+import React, { useState } from "react";
 import {
   Button,
   Dropdown,
@@ -7,13 +9,32 @@ import {
 } from "react-bootstrap";
 import { FaPlus, FaBan } from "react-icons/fa6";
 import GreenCheckmark from "./GreenCheckmark";
+import ModuleEditor from "./ModuleEditor";
 
-export default function ModulesControls() {
+interface ModulesControlsProps {
+  moduleName: string;
+  setModuleName: (name: string) => void;
+  addModule: () => void;
+}
+
+export default function ModulesControls({
+  moduleName,
+  setModuleName,
+  addModule,
+}: ModulesControlsProps) {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => {
+    setShow(false);
+  };
+  const handleShow = () => setShow(true);
+
   return (
     <div
       id="wd-modules-controls"
       className="d-flex justify-content-end align-items-center gap-2 text-nowrap"
     >
+      {/* Collapse All Button */}
       <Button
         variant="secondary"
         size="lg"
@@ -28,6 +49,7 @@ export default function ModulesControls() {
         Collapse All
       </Button>
 
+      {/* View Progress Button */}
       <Button
         variant="secondary"
         size="lg"
@@ -42,6 +64,7 @@ export default function ModulesControls() {
         View Progress
       </Button>
 
+      {/* Publish Dropdown */}
       <Dropdown>
         <DropdownToggle
           variant="secondary"
@@ -73,10 +96,29 @@ export default function ModulesControls() {
         </DropdownMenu>
       </Dropdown>
 
-      <Button variant="danger" size="lg" id="wd-add-module-btn">
+      {/* + Module Button */}
+      <Button
+        variant="danger"
+        size="lg"
+        id="wd-add-module-btn"
+        onClick={handleShow}
+      >
         <FaPlus className="position-relative me-2" style={{ bottom: "1px" }} />
         Module
       </Button>
+
+      {/* Module Editor Dialog */}
+      <ModuleEditor
+        show={show}
+        handleClose={handleClose}
+        dialogTitle="Add Module"
+        moduleName={moduleName}
+        setModuleName={setModuleName}
+        addModule={() => {
+          addModule(); // call parent function
+          handleClose(); // close modal after adding
+        }}
+      />
     </div>
   );
 }
