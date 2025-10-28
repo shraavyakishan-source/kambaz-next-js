@@ -1,34 +1,80 @@
-"use client";
 import React, { useState } from "react";
-
-interface EventInfo {
+interface EventSnapshot {
+  _reactName?: string;
   type: string;
-  id: string;
-  className: string;
-  outerHTML: string;
+  nativeEvent: { isTrusted: boolean };
+  target: string;
+  currentTarget: string | null;
+  eventPhase: number;
+  bubbles: boolean;
+  cancelable: boolean;
   timeStamp: number;
+  defaultPrevented: boolean;
+  isTrusted: boolean;
+  detail: number;
+  screenX: number;
+  screenY: number;
+  clientX: number;
+  clientY: number;
+  pageX: number;
+  pageY: number;
+  ctrlKey: boolean;
+  shiftKey: boolean;
+  altKey: boolean;
+  metaKey: boolean;
+  button: number;
+  buttons: number;
+  relatedTarget: EventTarget | null;
+  movementX: number;
+  movementY: number;
 }
 
 export default function EventObject() {
-  const [event, setEvent] = useState<EventInfo | null>(null);
+  const [eventData, setEventData] = useState<any>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const target = e.currentTarget; // safer than e.target in React
+    e.persist();
 
-    const eventInfo: EventInfo = {
+    const eventCopy = {
+      _reactName: (e as any)._reactName,
       type: e.type,
-      id: target.id,
-      className: target.className,
-      outerHTML: target.outerHTML,
+      nativeEvent: {
+        isTrusted: e.nativeEvent.isTrusted,
+      },
+      target: (e.target as HTMLElement).outerHTML,
+      currentTarget: e.currentTarget
+        ? (e.currentTarget as HTMLElement).outerHTML
+        : null,
+      eventPhase: e.eventPhase,
+      bubbles: e.bubbles,
+      cancelable: e.cancelable,
       timeStamp: e.timeStamp,
+      defaultPrevented: e.defaultPrevented,
+      isTrusted: e.isTrusted,
+      detail: e.detail,
+      screenX: e.screenX,
+      screenY: e.screenY,
+      clientX: e.clientX,
+      clientY: e.clientY,
+      pageX: e.pageX,
+      pageY: e.pageY,
+      ctrlKey: e.ctrlKey,
+      shiftKey: e.shiftKey,
+      altKey: e.altKey,
+      metaKey: e.metaKey,
+      button: e.button,
+      buttons: e.buttons,
+      relatedTarget: e.relatedTarget,
+      movementX: e.movementX,
+      movementY: e.movementY,
     };
 
-    setEvent(eventInfo);
+    setEventData(eventCopy);
   };
 
   return (
     <div>
-      <h2>The Event Object</h2>
+      <h2>Event Object</h2>
       <button
         onClick={handleClick}
         className="btn btn-primary"
@@ -36,8 +82,7 @@ export default function EventObject() {
       >
         Display Event Object
       </button>
-
-      <pre>{JSON.stringify(event, null, 2)}</pre>
+      <pre>{JSON.stringify(eventData, null, 2)}</pre>
       <hr />
     </div>
   );
