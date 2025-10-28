@@ -1,33 +1,50 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Form, Row, Col, Button } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
-import { addAssignment, Assignment } from "./reducer";
+import { addAssignment, updateAssignment, Assignment } from "./reducer";
 
 interface AssignmentEditorProps {
   cid: string;
+  assignment?: Assignment; // optional for editing
   closeModal: () => void;
+  onSave: (updatedAssignment: Assignment) => void;
 }
 
 export default function AssignmentEditor({
   cid,
+  assignment,
   closeModal,
 }: AssignmentEditorProps) {
   const dispatch = useDispatch();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [points, setPoints] = useState(100);
-  const [dueDate, setDueDate] = useState("");
-  const [availableFrom, setAvailableFrom] = useState("");
-  const [availableUntil, setAvailableUntil] = useState("");
+  const [title, setTitle] = useState(assignment?.title || "");
+  const [description, setDescription] = useState(assignment?.description || "");
+  const [points, setPoints] = useState(assignment?.points || 100);
+  const [dueDate, setDueDate] = useState(assignment?.dueDate || "");
+  const [availableFrom, setAvailableFrom] = useState(
+    assignment?.availableFrom || ""
+  );
+  const [availableUntil, setAvailableUntil] = useState(
+    assignment?.availableUntil || ""
+  );
+
+  // Update state if the assignment prop changes (important when editing different items)
+  useEffect(() => {
+    setTitle(assignment?.title || "");
+    setDescription(assignment?.description || "");
+    setPoints(assignment?.points || 100);
+    setDueDate(assignment?.dueDate || "");
+    setAvailableFrom(assignment?.availableFrom || "");
+    setAvailableUntil(assignment?.availableUntil || "");
+  }, [assignment]);
 
   const handleSave = () => {
     if (!title) return alert("Please enter a title");
 
-    const newAssignment: Assignment = {
-      _id: uuidv4(),
+    const newOrUpdatedAssignment: Assignment = {
+      _id: assignment?._id || uuidv4(),
       course: cid,
       title,
       description,
@@ -37,7 +54,12 @@ export default function AssignmentEditor({
       availableUntil,
     };
 
-    dispatch(addAssignment(newAssignment));
+    if (assignment?._id) {
+      dispatch(updateAssignment(newOrUpdatedAssignment)); // edit existing
+    } else {
+      dispatch(addAssignment(newOrUpdatedAssignment)); // add new
+    }
+
     closeModal();
   };
 

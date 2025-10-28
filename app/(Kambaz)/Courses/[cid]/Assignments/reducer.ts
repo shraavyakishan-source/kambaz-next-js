@@ -19,17 +19,17 @@ const assignmentsSlice = createSlice({
   name: "assignments",
   initialState,
   reducers: {
-    // ✅ Add a new assignment
+    //  Add a new assignment
     addAssignment: (state, action: PayloadAction<Assignment>) => {
       state.push(action.payload);
     },
 
-    // ✅ Delete an assignment by id
+    //  Delete an assignment by id
     deleteAssignment: (state, action: PayloadAction<string>) => {
       return state.filter((a) => a._id !== action.payload);
     },
 
-    // ✅ Update an existing assignment
+    // Update an existing assignment
     updateAssignment: (state, action: PayloadAction<Assignment>) => {
       const updated = action.payload;
       const index = state.findIndex((a) => a._id === updated._id);
