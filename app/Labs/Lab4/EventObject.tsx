@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 interface EventSnapshot {
   _reactName?: string;
   type: string;
@@ -30,17 +31,16 @@ interface EventSnapshot {
 }
 
 export default function EventObject() {
-  const [eventData, setEventData] = useState<any>(null);
+  const [eventData, setEventData] = useState<EventSnapshot | null>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.persist();
+    e.persist(); // keep the synthetic event from being cleared
 
-    const eventCopy = {
-      _reactName: (e as any)._reactName,
+    // Create a snapshot of all useful event properties
+    const snapshot: EventSnapshot = {
+      _reactName: (e as any)._reactName, // _reactName is internal, no official type
       type: e.type,
-      nativeEvent: {
-        isTrusted: e.nativeEvent.isTrusted,
-      },
+      nativeEvent: { isTrusted: e.nativeEvent.isTrusted },
       target: (e.target as HTMLElement).outerHTML,
       currentTarget: e.currentTarget
         ? (e.currentTarget as HTMLElement).outerHTML
@@ -69,7 +69,7 @@ export default function EventObject() {
       movementY: e.movementY,
     };
 
-    setEventData(eventCopy);
+    setEventData(snapshot);
   };
 
   return (
