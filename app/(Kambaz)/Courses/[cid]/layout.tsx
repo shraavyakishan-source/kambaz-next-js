@@ -14,8 +14,8 @@ interface Course {
   number: string;
   startDate: string;
   endDate: string;
-  department: string;
-  credits: number;
+  department?: string;
+  credits?: number;
   description: string;
   author?: string;
 }
