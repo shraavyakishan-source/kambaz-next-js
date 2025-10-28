@@ -8,15 +8,33 @@ interface Course {
   number: string;
   startDate: string;
   endDate: string;
-  department: string;
-  credits: number;
+  department?: string;
+  credits?: number;
   description: string;
   author?: string;
   image?: string;
 }
 
+// --- Utility functions for persistence ---
+const loadCourses = (): Course[] => {
+  if (typeof window === "undefined") return initialCourses;
+  try {
+    const saved = localStorage.getItem("courses");
+    return saved ? JSON.parse(saved) : initialCourses;
+  } catch {
+    return initialCourses;
+  }
+};
+
+const saveCourses = (courses: Course[]) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("courses", JSON.stringify(courses));
+  }
+};
+
+// --- Slice ---
 const initialState = {
-  courses: initialCourses,
+  courses: loadCourses(),
 };
 
 const coursesSlice = createSlice({
@@ -24,18 +42,20 @@ const coursesSlice = createSlice({
   initialState,
   reducers: {
     addNewCourse: (state, { payload: course }) => {
-      state.courses.push({ ...course, _id: uuidv4() });
+      const newCourse = { ...course, _id: uuidv4() };
+      state.courses.push(newCourse);
+      saveCourses(state.courses);
     },
     deleteCourse: (state, { payload: courseId }) => {
-      state.courses = state.courses.filter(
-        (course: Course) => course._id !== courseId
-      );
+      state.courses = state.courses.filter((course) => course._id !== courseId);
+      saveCourses(state.courses);
     },
     updateCourse: (state, { payload: updatedCourse }) => {
-      const index = state.courses.findIndex(
-        (c: Course) => c._id === updatedCourse._id
-      );
-      if (index !== -1) state.courses[index] = updatedCourse;
+      const index = state.courses.findIndex((c) => c._id === updatedCourse._id);
+      if (index !== -1) {
+        state.courses[index] = updatedCourse;
+        saveCourses(state.courses);
+      }
     },
   },
 });

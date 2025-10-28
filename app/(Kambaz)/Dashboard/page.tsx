@@ -124,33 +124,37 @@ export default function Dashboard() {
                 </CardBody>
               </Link>
 
-              <div className="p-2">
-                <Button
-                  variant="primary"
-                  className="me-2"
-                  href={`/Courses/${c._id}/Home`}
-                >
-                  Go
-                </Button>
-                <Button
-                  variant="warning"
-                  className="me-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCourse(c);
-                  }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDeleteCourse(c._id);
-                  }}
-                >
-                  Delete
-                </Button>
+              <div className="d-flex w-100 justify-content-between align-items-center mt-2">
+                <div>
+                  <Button
+                    variant="primary"
+                    className="me-2"
+                    href={`/Courses/${c._id}/Home`}
+                  >
+                    Go
+                  </Button>
+                </div>
+                <div className="d-flex">
+                  <Button
+                    variant="warning"
+                    className="me-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCourse(c);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteCourse(c._id);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </div>
             </Card>
           </Col>
