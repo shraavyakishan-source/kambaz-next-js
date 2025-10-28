@@ -41,7 +41,7 @@ export default function Dashboard() {
     number: "New Number",
     startDate: "2023-09-10",
     endDate: "2023-12-15",
-    image: "/images/img.jpeg",
+    image: "/Images/img.jpeg",
     description: "New Description",
   });
 
@@ -109,7 +109,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src={c.image || "/images/img.jpeg"}
+                  src={c.image || "/Images/img.jpeg"}
                   width="100%"
                   height={140}
                 />
