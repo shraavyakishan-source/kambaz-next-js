@@ -34,11 +34,10 @@ export default function EventObject() {
   const [eventData, setEventData] = useState<EventSnapshot | null>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.persist(); // keep the synthetic event from being cleared
+    e.persist();
 
-    // Create a snapshot of all useful event properties
     const snapshot: EventSnapshot = {
-      _reactName: (e as any)._reactName, // _reactName is internal, no official type
+      _reactName: (e as any)._reactName, // only line using any, safe with eslint-disable
       type: e.type,
       nativeEvent: { isTrusted: e.nativeEvent.isTrusted },
       target: (e.target as HTMLElement).outerHTML,
