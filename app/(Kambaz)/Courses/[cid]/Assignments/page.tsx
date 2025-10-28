@@ -163,8 +163,8 @@ export default function Assignments() {
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete the assignment "
-          {assignmentToDelete?.title}"?
+          Are you sure you want to delete the assignment &quot;
+          {assignmentToDelete?.title}&quot;?
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={cancelDelete}>
