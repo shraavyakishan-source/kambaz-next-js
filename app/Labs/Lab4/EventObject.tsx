@@ -37,7 +37,7 @@ export default function EventObject() {
     e.persist();
 
     const snapshot: EventSnapshot = {
-      _reactName: (e as any)._reactName, // only line using any, safe with eslint-disable
+      _reactName: (e as unknown as { _reactName?: string })._reactName,
       type: e.type,
       nativeEvent: { isTrusted: e.nativeEvent.isTrusted },
       target: (e.target as HTMLElement).outerHTML,
