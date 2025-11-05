@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FormControl } from "react-bootstrap";
 import { useState, useEffect } from "react";
@@ -7,12 +6,22 @@ import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "../reducer";
 import { RootState } from "../../store";
 
+interface UserProfile {
+  username?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  dob?: string;
+  email?: string;
+  role?: string;
+}
+
 export default function Profile() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
-  const [profile, setProfile] = useState<any>({});
+  const [profile, setProfile] = useState<UserProfile>({});
 
   const fetchProfile = () => {
     if (!currentUser) {
@@ -29,7 +38,7 @@ export default function Profile() {
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [currentUser]); // ✅ Added dependency
 
   return (
     <div id="wd-signin-screen">

@@ -32,6 +32,11 @@ interface Course {
   image?: string;
 }
 
+interface Enrollment {
+  user: string;
+  course: string;
+}
+
 export default function Dashboard() {
   const dispatch = useDispatch();
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
@@ -62,19 +67,17 @@ export default function Dashboard() {
     );
   }
 
-  // Identify user’s enrolled courses
+  // ✅ Use proper type instead of `any`
   const userEnrollments = enrollments.filter(
-    (e: any) => e.user === currentUser._id
+    (e: Enrollment) => e.user === currentUser._id
   );
-  const enrolledCourseIds = userEnrollments.map((e: any) => e.course);
+  const enrolledCourseIds = userEnrollments.map((e: Enrollment) => e.course);
   const enrolledCourses = courses.filter((c) =>
     enrolledCourseIds.includes(c._id)
   );
 
-  // Determine which list to show
   const displayedCourses = showAllCourses ? courses : enrolledCourses;
 
-  // Faculty-only: Add, Update, Delete
   const handleAddCourse = () => {
     const newCourse = { ...course, _id: uuidv4(), author: currentUser._id };
     dispatch(addNewCourse(newCourse));
@@ -88,7 +91,6 @@ export default function Dashboard() {
     dispatch(deleteCourse(id));
   };
 
-  // Enrollment actions
   const handleEnroll = (courseId: string) => {
     dispatch(enroll({ user: currentUser._id, course: courseId }));
   };
@@ -99,7 +101,6 @@ export default function Dashboard() {
 
   return (
     <div id="wd-dashboard" className="p-4">
-      {/* Header with Enrollments toggle button */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h1 id="wd-dashboard-title">Dashboard</h1>
         <Button
@@ -190,9 +191,7 @@ export default function Dashboard() {
                   </CardBody>
                 </Link>
 
-                {/* Action Buttons */}
                 <div className="d-flex justify-content-between flex-wrap p-2">
-                  {/* ✅ Enroll/Unenroll for both roles */}
                   {(currentUser.role === "STUDENT" ||
                     currentUser.role === "FACULTY") &&
                     (isEnrolled ? (
@@ -213,7 +212,6 @@ export default function Dashboard() {
                       </Button>
                     ))}
 
-                  {/* ✅ Faculty management buttons (Go / Edit / Delete) */}
                   {currentUser.role === "FACULTY" && (
                     <div className="d-flex flex-wrap gap-2">
                       <Button
