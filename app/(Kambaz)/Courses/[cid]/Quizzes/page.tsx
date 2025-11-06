@@ -126,7 +126,7 @@ export default function Quizzes() {
                   size={20}
                 />
                 <Link
-                  href={`/Courses/${cid}/Quizzes/${q._id}`}
+                  href={`/Courses/${cid}/Quizzes/${q._id}/QuizDetails`}
                   className="flex-grow-1 text-decoration-none"
                   style={{ cursor: "pointer" }}
                 >
