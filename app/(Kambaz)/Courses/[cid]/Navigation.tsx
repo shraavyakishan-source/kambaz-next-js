@@ -15,7 +15,7 @@ export default function CourseNavigation() {
     { label: "Assignments", path: `/Courses/${cid}/Assignments` },
     {
       label: "Quizzes",
-      path: "https://northeastern.instructure.com/courses/225999/quizzes",
+      path: `/Courses/${cid}/Quizzes`,
     },
     {
       label: "Grades",
