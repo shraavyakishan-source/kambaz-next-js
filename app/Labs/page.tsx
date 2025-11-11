@@ -25,6 +25,11 @@ export default function Labs() {
           </Link>
         </li>
         <li>
+          <Link href="/Labs/Lab5" id="wd-lab5-link">
+            Lab 5: Implementing RESTful Web APIs with Express.js
+          </Link>
+        </li>
+        <li>
           <Link href="https://github.com/shraavyakishan-source/kambaz-next-js/tree/main/app/(Kambaz)">
             Link to Github Repository
           </Link>
