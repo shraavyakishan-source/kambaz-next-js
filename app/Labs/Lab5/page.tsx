@@ -4,6 +4,7 @@ import QueryParameters from "./QueryParameters";
 import WorkingWithObjects from "./WorkingWithObjects";
 import WorkingWithArrays from "./WorkingWithArrays";
 import HttpClient from "./HttpClient";
+import WorkingWithObjectsAsynchronously from "./WorkingWithObjectsAsynchronously";
 const HTTP_SERVER = process.env.NEXT_PUBLIC_HTTP_SERVER;
 export default function Lab5() {
   console.log("HTTP_SERVER:", HTTP_SERVER);
@@ -23,6 +24,7 @@ export default function Lab5() {
       <WorkingWithObjects />
       <WorkingWithArrays />
       <HttpClient />
+      <WorkingWithObjectsAsynchronously />
     </div>
   );
 }
