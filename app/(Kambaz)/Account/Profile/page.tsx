@@ -1,12 +1,14 @@
 "use client";
-import { redirect } from "next/navigation";
-import { FormControl } from "react-bootstrap";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { FormControl, Button } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "../reducer";
 import { RootState } from "../../store";
+import * as client from "../client";
+import { useRouter } from "next/navigation";
 
 interface UserProfile {
+  _id?: string;
   username?: string;
   password?: string;
   firstName?: string;
@@ -17,36 +19,50 @@ interface UserProfile {
 }
 
 export default function Profile() {
+  const router = useRouter();
   const dispatch = useDispatch();
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
+
   const [profile, setProfile] = useState<UserProfile>({});
 
-  const fetchProfile = () => {
+  // Load current user once on mount
+  useEffect(() => {
     if (!currentUser) {
-      redirect("/Account/Signin");
+      router.push("/Account/Signin");
       return;
     }
-    setProfile(currentUser);
+    setProfile({ ...currentUser }); // clone to avoid reference issues
+  }, []); // run only once on mount
+
+  const updateProfile = async () => {
+    if (!profile._id) return;
+    try {
+      const updatedProfile = await client.updateUser(profile);
+      dispatch(setCurrentUser(updatedProfile));
+      alert("Profile updated successfully!");
+      router.push("/Dashboard"); // navigate after success
+    } catch (error) {
+      console.error("Update failed", error);
+      alert("Failed to update profile.");
+    }
   };
 
   const signout = () => {
+    client.signout().catch(console.error); // call backend but don’t block
     dispatch(setCurrentUser(null));
-    redirect("/Account/Signin");
+    router.push("/Account/Signin");
   };
 
-  useEffect(() => {
-    fetchProfile();
-  }, [currentUser]); // ✅ Added dependency
-
   return (
-    <div id="wd-signin-screen">
+    <div id="wd-profile-screen" className="p-4">
       <h1>Profile</h1>
+
       <FormControl
         id="wd-username"
         value={profile.username || ""}
-        placeholder="username"
+        placeholder="Username"
         className="mb-2 w-50"
         readOnly
       />
@@ -54,7 +70,7 @@ export default function Profile() {
       <FormControl
         id="wd-password"
         value={profile.password || ""}
-        placeholder="password"
+        placeholder="Password"
         type="password"
         className="mb-2 w-50"
         readOnly
@@ -63,17 +79,17 @@ export default function Profile() {
       <FormControl
         id="wd-firstname"
         value={profile.firstName || ""}
-        placeholder="firstname"
+        placeholder="First Name"
         className="mb-2 w-50"
-        readOnly
+        onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
       />
 
       <FormControl
         id="wd-lastname"
         value={profile.lastName || ""}
-        placeholder="lastname"
+        placeholder="Last Name"
         className="mb-2 w-50"
-        readOnly
+        onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
       />
 
       <FormControl
@@ -81,22 +97,28 @@ export default function Profile() {
         type="date"
         value={profile.dob ? profile.dob.slice(0, 10) : ""}
         className="mb-2 w-50"
-        readOnly
+        onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
       />
 
       <FormControl
         id="wd-email"
-        value={profile.email || ""}
         type="email"
+        placeholder="E-mail"
+        value={profile.email || ""}
         className="mb-2 w-50"
-        readOnly
+        onChange={(e) => setProfile({ ...profile, email: e.target.value })}
       />
 
       <FormControl value={profile.role || ""} className="mb-2 w-50" readOnly />
 
-      <button onClick={signout} className="btn btn-danger w-50 mt-3">
+      <Button className="mb-2 w-50" onClick={updateProfile}>
+        Update Profile
+      </Button>
+      <br />
+
+      <Button variant="danger" className="w-50" onClick={signout}>
         Sign out
-      </button>
+      </Button>
     </div>
   );
 }

@@ -5,7 +5,8 @@ import { useDispatch } from "react-redux";
 import { useState } from "react";
 import { FormControl, Button } from "react-bootstrap";
 import { setCurrentUser } from "../reducer";
-import users from "../../Database/users.json"; // 👈 Import JSON directly
+//import users from "../../Database/users.json"; // Import JSON directly
+import * as client from "../client";
 
 export default function Signin() {
   const [credentials, setCredentials] = useState({
@@ -15,24 +16,24 @@ export default function Signin() {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const signin = () => {
-    // Find user with matching credentials
-    const user = users.find(
-      (u) =>
-        u.username === credentials.username &&
-        u.password === credentials.password
-    );
+  const signin = async () => {
+    try {
+      const user = await client.signin(credentials); // <-- call backend API
 
-    if (!user) {
-      alert("Invalid username or password");
-      return;
+      if (!user) {
+        alert("Invalid username or password");
+        return;
+      }
+
+      // Save to Redux store
+      dispatch(setCurrentUser(user));
+
+      // Navigate to Dashboard
+      router.push("/Dashboard");
+    } catch (error) {
+      console.error("Signin failed:", error);
+      alert("Signin failed. Please check your username and password.");
     }
-
-    // Store in Redux
-    dispatch(setCurrentUser(user));
-
-    // Navigate to Dashboard
-    router.push("/Dashboard");
   };
 
   return (

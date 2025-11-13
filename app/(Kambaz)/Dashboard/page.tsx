@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { v4 as uuidv4 } from "uuid";
 import {
   Row,
   Col,
@@ -15,27 +14,11 @@ import {
   Button,
   FormControl,
 } from "react-bootstrap";
-import { addNewCourse, deleteCourse, updateCourse } from "../Courses/reducer";
-import { enroll, unenroll } from "../Courses/enrollmentsReducer";
+import { setCourses } from "../Courses/reducer";
 import type { RootState } from "../store";
+import * as client from "../Courses/client";
 
-interface Course {
-  _id: string;
-  name: string;
-  number: string;
-  startDate: string;
-  endDate: string;
-  department?: string;
-  credits?: number;
-  description: string;
-  author?: string;
-  image?: string;
-}
-
-interface Enrollment {
-  user: string;
-  course: string;
-}
+import type { Course } from "../types/Course";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
@@ -43,21 +26,33 @@ export default function Dashboard() {
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
-  const { enrollments } = useSelector(
-    (state: RootState) => state.enrollmentsReducer
-  );
 
-  const [course, setCourse] = useState<Course>({
-    _id: "0",
-    name: "New Course",
-    number: "New Number",
-    startDate: "2023-09-10",
-    endDate: "2023-12-15",
+  const blankCourse: Course = {
+    _id: "",
+    name: "",
+    number: "",
+    startDate: new Date().toISOString().slice(0, 10),
+    endDate: new Date().toISOString().slice(0, 10),
+    description: "",
     image: "/Images/img.jpeg",
-    description: "New Description",
-  });
+  };
 
+  const [course, setCourse] = useState<Course>({ ...blankCourse });
   const [showAllCourses, setShowAllCourses] = useState(false);
+
+  // ✅ Fetch current user's courses when logged in
+  useEffect(() => {
+    const fetchCourses = async () => {
+      if (!currentUser) return;
+      try {
+        const myCourses = await client.findMyCourses();
+        dispatch(setCourses(myCourses));
+      } catch (error) {
+        console.error("❌ Failed to fetch courses:", error);
+      }
+    };
+    fetchCourses();
+  }, [currentUser, dispatch]);
 
   if (!currentUser) {
     return (
@@ -67,36 +62,42 @@ export default function Dashboard() {
     );
   }
 
-  // ✅ Use proper type instead of `any`
-  const userEnrollments = enrollments.filter(
-    (e: Enrollment) => e.user === currentUser._id
-  );
-  const enrolledCourseIds = userEnrollments.map((e: Enrollment) => e.course);
-  const enrolledCourses = courses.filter((c) =>
-    enrolledCourseIds.includes(c._id)
-  );
+  const displayedCourses = courses; // for now, backend handles filtering
 
-  const displayedCourses = showAllCourses ? courses : enrolledCourses;
-
-  const handleAddCourse = () => {
-    const newCourse = { ...course, _id: uuidv4(), author: currentUser._id };
-    dispatch(addNewCourse(newCourse));
+  // ✅ Add a new course
+  const onAddNewCourse = async () => {
+    try {
+      const newCourse = await client.createCourse(course);
+      dispatch(setCourses([...courses, newCourse] as Course[])); // ✅ cast fixes TS issue
+      setCourse({ ...blankCourse });
+    } catch (error) {
+      console.error("❌ Failed to add course:", error);
+    }
   };
 
-  const handleUpdateCourse = () => {
-    dispatch(updateCourse(course));
+  // ✅ Delete a course
+  const onDeleteCourse = async (courseId: string) => {
+    try {
+      await client.deleteCourse(courseId);
+      dispatch(setCourses(courses.filter((c) => c._id !== courseId)));
+    } catch (error) {
+      console.error("❌ Failed to delete course:", error);
+    }
   };
 
-  const handleDeleteCourse = (id: string) => {
-    dispatch(deleteCourse(id));
-  };
-
-  const handleEnroll = (courseId: string) => {
-    dispatch(enroll({ user: currentUser._id, course: courseId }));
-  };
-
-  const handleUnenroll = (courseId: string) => {
-    dispatch(unenroll({ user: currentUser._id, course: courseId }));
+  // ✅ Update a course
+  const onUpdateCourse = async () => {
+    try {
+      const updated = await client.updateCourse(course);
+      dispatch(
+        setCourses(
+          courses.map((c) => (c._id === updated._id ? updated : c)) as Course[]
+        )
+      );
+      setCourse({ ...blankCourse });
+    } catch (error) {
+      console.error("❌ Failed to update course:", error);
+    }
   };
 
   return (
@@ -134,20 +135,20 @@ export default function Dashboard() {
             }
           />
           <div className="d-flex mb-2">
-            <Button
-              className="btn btn-primary me-2"
-              onClick={handleAddCourse}
+            <button
+              onClick={onAddNewCourse}
+              className="btn btn-primary float-end me-2"
               id="wd-add-new-course-click"
             >
               Add
-            </Button>
-            <Button
-              className="btn btn-warning me-2"
-              onClick={handleUpdateCourse}
+            </button>
+            <button
+              onClick={onUpdateCourse}
+              className="btn btn-secondary float-end"
               id="wd-update-course-click"
             >
               Update
-            </Button>
+            </button>
           </div>
           <hr />
         </>
@@ -161,17 +162,13 @@ export default function Dashboard() {
 
       <Row xs={1} md={3} className="g-4">
         {displayedCourses.map((c: Course) => {
-          const isEnrolled = enrolledCourseIds.includes(c._id);
+          const isFaculty = currentUser.role === "FACULTY";
 
           return (
             <Col key={c._id}>
               <Card style={{ width: "290px" }}>
                 <Link
-                  href={
-                    isEnrolled || currentUser.role === "FACULTY"
-                      ? `/Courses/${c._id}/Home`
-                      : "/Dashboard"
-                  }
+                  href={`/Courses/${c._id}/Home`}
                   className="text-decoration-none text-dark"
                 >
                   <CardImg
@@ -191,53 +188,33 @@ export default function Dashboard() {
                   </CardBody>
                 </Link>
 
-                <div className="d-flex justify-content-between flex-wrap p-2">
-                  {(currentUser.role === "STUDENT" ||
-                    currentUser.role === "FACULTY") &&
-                    (isEnrolled ? (
-                      <Button
-                        variant="danger"
-                        onClick={() => handleUnenroll(c._id)}
-                        className="me-2 mb-2"
-                      >
-                        Unenroll
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="success"
-                        onClick={() => handleEnroll(c._id)}
-                        className="me-2 mb-2"
-                      >
-                        Enroll
-                      </Button>
-                    ))}
-
-                  {currentUser.role === "FACULTY" && (
-                    <div className="d-flex flex-wrap gap-2">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        href={`/Courses/${c._id}/Home`}
-                      >
-                        Go
-                      </Button>
-                      <Button
-                        variant="warning"
-                        size="sm"
-                        onClick={() => setCourse(c)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => handleDeleteCourse(c._id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                {isFaculty && (
+                  <div className="d-flex flex-wrap gap-2 p-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      href={`/Courses/${c._id}/Home`}
+                    >
+                      Go
+                    </Button>
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      onClick={() => setCourse(c)}
+                    >
+                      Edit
+                    </Button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        onDeleteCourse(c._id); // ✅ correctly passes course ID
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </Card>
             </Col>
           );
