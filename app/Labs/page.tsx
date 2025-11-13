@@ -34,6 +34,11 @@ export default function Labs() {
             Link to Github Repository
           </Link>
         </li>
+        <li>
+          <Link href="https://github.com/shraavyakishan-source/kambaz-node-server-app-cs5610/tree/A5">
+            Link to Github Server Repository
+          </Link>
+        </li>
       </ul>
     </div>
   );

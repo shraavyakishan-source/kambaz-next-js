@@ -15,14 +15,16 @@ import {
   FormControl,
 } from "react-bootstrap";
 import { setCourses } from "../Courses/reducer";
+import { enroll, unenroll } from "../Courses/enrollmentsReducer"; // frontend-only Redux actions
 import type { RootState } from "../store";
-import * as client from "../Courses/client";
-
 import type { Course } from "../types/Course";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
+  const { enrollments } = useSelector(
+    (state: RootState) => state.enrollmentsReducer
+  );
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
@@ -40,19 +42,15 @@ export default function Dashboard() {
   const [course, setCourse] = useState<Course>({ ...blankCourse });
   const [showAllCourses, setShowAllCourses] = useState(false);
 
-  // ✅ Fetch current user's courses when logged in
-  useEffect(() => {
-    const fetchCourses = async () => {
-      if (!currentUser) return;
-      try {
-        const myCourses = await client.findMyCourses();
-        dispatch(setCourses(myCourses));
-      } catch (error) {
-        console.error("❌ Failed to fetch courses:", error);
-      }
-    };
-    fetchCourses();
-  }, [currentUser, dispatch]);
+  // ✅ Redux enrollments for the current user
+  const userEnrollments = enrollments.filter(
+    (e) => e.user === currentUser?._id
+  );
+  const enrolledCourseIds = userEnrollments.map((e) => e.course);
+
+  const displayedCourses = showAllCourses
+    ? courses
+    : courses.filter((c) => enrolledCourseIds.includes(c._id));
 
   if (!currentUser) {
     return (
@@ -62,42 +60,39 @@ export default function Dashboard() {
     );
   }
 
-  const displayedCourses = courses; // for now, backend handles filtering
-
   // ✅ Add a new course
-  const onAddNewCourse = async () => {
-    try {
-      const newCourse = await client.createCourse(course);
-      dispatch(setCourses([...courses, newCourse] as Course[])); // ✅ cast fixes TS issue
-      setCourse({ ...blankCourse });
-    } catch (error) {
-      console.error("❌ Failed to add course:", error);
-    }
+  const onAddNewCourse = () => {
+    const newCourse = {
+      ...course,
+      _id: crypto.randomUUID(),
+      author: currentUser._id,
+    };
+    dispatch(setCourses([...courses, newCourse]));
+    setCourse({ ...blankCourse });
   };
 
   // ✅ Delete a course
-  const onDeleteCourse = async (courseId: string) => {
-    try {
-      await client.deleteCourse(courseId);
-      dispatch(setCourses(courses.filter((c) => c._id !== courseId)));
-    } catch (error) {
-      console.error("❌ Failed to delete course:", error);
-    }
+  const onDeleteCourse = (courseId: string) => {
+    dispatch(setCourses(courses.filter((c) => c._id !== courseId)));
   };
 
   // ✅ Update a course
-  const onUpdateCourse = async () => {
-    try {
-      const updated = await client.updateCourse(course);
-      dispatch(
-        setCourses(
-          courses.map((c) => (c._id === updated._id ? updated : c)) as Course[]
-        )
-      );
-      setCourse({ ...blankCourse });
-    } catch (error) {
-      console.error("❌ Failed to update course:", error);
-    }
+  const onUpdateCourse = () => {
+    dispatch(
+      setCourses(courses.map((c) => (c._id === course._id ? course : c)))
+    );
+    setCourse({ ...blankCourse });
+  };
+
+  // ✅ Frontend-only enroll/unenroll
+  const handleEnroll = (courseId: string) => {
+    if (!currentUser || !currentUser._id) return;
+    dispatch(enroll({ user: currentUser._id, course: courseId }));
+  };
+
+  const handleUnenroll = (courseId: string) => {
+    if (!currentUser || !currentUser._id) return;
+    dispatch(unenroll({ user: currentUser._id, course: courseId }));
   };
 
   return (
@@ -163,6 +158,7 @@ export default function Dashboard() {
       <Row xs={1} md={3} className="g-4">
         {displayedCourses.map((c: Course) => {
           const isFaculty = currentUser.role === "FACULTY";
+          const isEnrolled = enrolledCourseIds.includes(c._id);
 
           return (
             <Col key={c._id}>
@@ -188,33 +184,57 @@ export default function Dashboard() {
                   </CardBody>
                 </Link>
 
-                {isFaculty && (
-                  <div className="d-flex flex-wrap gap-2 p-2">
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      href={`/Courses/${c._id}/Home`}
-                    >
-                      Go
-                    </Button>
-                    <Button
-                      variant="warning"
-                      size="sm"
-                      onClick={() => setCourse(c)}
-                    >
-                      Edit
-                    </Button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        onDeleteCourse(c._id); // ✅ correctly passes course ID
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
+                <div className="d-flex flex-wrap gap-2 p-2">
+                  {!isFaculty && (
+                    <>
+                      {isEnrolled ? (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleUnenroll(c._id)}
+                        >
+                          Unenroll
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => handleEnroll(c._id)}
+                        >
+                          Enroll
+                        </Button>
+                      )}
+                    </>
+                  )}
+
+                  {isFaculty && (
+                    <>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        href={`/Courses/${c._id}/Home`}
+                      >
+                        Go
+                      </Button>
+                      <Button
+                        variant="warning"
+                        size="sm"
+                        onClick={() => setCourse(c)}
+                      >
+                        Edit
+                      </Button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          onDeleteCourse(c._id);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
               </Card>
             </Col>
           );
