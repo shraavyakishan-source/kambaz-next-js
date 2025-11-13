@@ -6,15 +6,18 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { setCurrentUser } from "../reducer";
 import * as client from "../client"; // this calls your backend API
+import { User } from "../../types/Account"; // import the updated User type
 
 export default function Signup() {
-  const [user, setUser] = useState({ username: "", password: "" });
+  // now User type allows optional fields
+  const [user, setUser] = useState<User>({ username: "", password: "" });
+
   const dispatch = useDispatch();
   const router = useRouter();
 
   const signup = async () => {
     try {
-      const currentUser = await client.signup(user); // POSTs to your backend
+      const currentUser = await client.signup(user); // POSTs to backend
       dispatch(setCurrentUser(currentUser)); // save in Redux
       router.push("/Account/Profile"); // navigate to Profile page
     } catch (error) {
@@ -27,7 +30,6 @@ export default function Signup() {
     <div id="wd-signin-screen">
       <h1>Sign up</h1>
 
-      {/* ✅ update state when user types */}
       <FormControl
         id="wd-username"
         placeholder="username"
@@ -59,7 +61,7 @@ export default function Signup() {
 
       <br />
 
-      <Link id="wd-signin-link" href="Signin">
+      <Link id="wd-signin-link" href="/Signin">
         Sign in
       </Link>
     </div>

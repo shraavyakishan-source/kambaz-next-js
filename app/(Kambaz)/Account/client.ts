@@ -8,7 +8,8 @@ export const USERS_API = `${HTTP_SERVER}/api/users`;
 
 // --- Type Definitions ---
 export interface SigninCredentials {
-  email: string;
+  username: string;
+  email?: string;
   password: string;
 }
 

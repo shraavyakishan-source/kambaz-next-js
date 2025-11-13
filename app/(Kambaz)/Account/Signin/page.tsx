@@ -5,27 +5,30 @@ import { useDispatch } from "react-redux";
 import { useState } from "react";
 import { FormControl, Button } from "react-bootstrap";
 import { setCurrentUser } from "../reducer";
-//import users from "../../Database/users.json"; // Import JSON directly
 import * as client from "../client";
+import { SigninCredentials } from "../client"; // import the exact type used by client
 
 export default function Signin() {
-  const [credentials, setCredentials] = useState({
+  // Initialize state with all required fields from SigninCredentials
+  const [credentials, setCredentials] = useState<SigninCredentials>({
     username: "",
     password: "",
+    email: "", // include if required by the type
   });
+
   const dispatch = useDispatch();
   const router = useRouter();
 
   const signin = async () => {
     try {
-      const user = await client.signin(credentials); // <-- call backend API
+      const user = await client.signin(credentials); // calls backend
 
       if (!user) {
         alert("Invalid username or password");
         return;
       }
 
-      // Save to Redux store
+      // Save user in Redux store
       dispatch(setCurrentUser(user));
 
       // Navigate to Dashboard
@@ -60,6 +63,20 @@ export default function Signin() {
           setCredentials({ ...credentials, password: e.target.value })
         }
       />
+
+      {/* Optional: email input if backend requires it */}
+      {/* 
+      <FormControl
+        id="wd-email"
+        placeholder="email"
+        type="email"
+        className="mb-2 w-50"
+        value={credentials.email}
+        onChange={(e) =>
+          setCredentials({ ...credentials, email: e.target.value })
+        }
+      /> 
+      */}
 
       <Button
         id="wd-signin-btn"
