@@ -6,16 +6,15 @@ import { setCurrentUser } from "../reducer";
 import { RootState } from "../../store";
 import * as client from "../client";
 import { useRouter } from "next/navigation";
+import type { User } from "../../types/Account";
 
-interface UserProfile {
-  _id?: string;
-  username?: string;
-  password?: string;
+// Define editable subset for form
+interface UserProfileEditable {
   firstName?: string;
   lastName?: string;
   dob?: string;
   email?: string;
-  role?: string;
+  password?: string;
 }
 
 export default function Profile() {
@@ -25,24 +24,37 @@ export default function Profile() {
     (state: RootState) => state.accountReducer
   );
 
-  const [profile, setProfile] = useState<UserProfile>({});
+  const [profile, setProfile] = useState<UserProfileEditable>({});
 
-  // Load current user once on mount
+  // Load current user into editable form
   useEffect(() => {
     if (!currentUser) {
       router.push("/Account/Signin");
       return;
     }
-    setProfile({ ...currentUser }); // clone to avoid reference issues
-  }, []); // run only once on mount
+    setProfile({
+      firstName: currentUser.firstName,
+      lastName: currentUser.lastName,
+      dob: currentUser.dob,
+      email: currentUser.email,
+      password: currentUser.password,
+    });
+  }, [currentUser, router]);
 
   const updateProfile = async () => {
-    if (!profile._id) return;
+    if (!currentUser) return;
+
+    // Merge editable fields with full user object
+    const userForUpdate: User = {
+      ...currentUser, // include all required backend fields
+      ...profile, // overwrite with edited values
+    };
+
     try {
-      const updatedProfile = await client.updateUser(profile);
+      const updatedProfile = await client.updateUser(userForUpdate);
       dispatch(setCurrentUser(updatedProfile));
       alert("Profile updated successfully!");
-      router.push("/Dashboard"); // navigate after success
+      router.push("/Dashboard");
     } catch (error) {
       console.error("Update failed", error);
       alert("Failed to update profile.");
@@ -50,7 +62,7 @@ export default function Profile() {
   };
 
   const signout = () => {
-    client.signout().catch(console.error); // call backend but don’t block
+    client.signout().catch(console.error);
     dispatch(setCurrentUser(null));
     router.push("/Account/Signin");
   };
@@ -61,7 +73,7 @@ export default function Profile() {
 
       <FormControl
         id="wd-username"
-        value={profile.username || ""}
+        value={currentUser?.username || ""}
         placeholder="Username"
         className="mb-2 w-50"
         readOnly
@@ -73,7 +85,9 @@ export default function Profile() {
         placeholder="Password"
         type="password"
         className="mb-2 w-50"
-        readOnly
+        onChange={(e) =>
+          setProfile((prev) => ({ ...prev, password: e.target.value }))
+        }
       />
 
       <FormControl
@@ -81,7 +95,9 @@ export default function Profile() {
         value={profile.firstName || ""}
         placeholder="First Name"
         className="mb-2 w-50"
-        onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
+        onChange={(e) =>
+          setProfile((prev) => ({ ...prev, firstName: e.target.value }))
+        }
       />
 
       <FormControl
@@ -89,7 +105,9 @@ export default function Profile() {
         value={profile.lastName || ""}
         placeholder="Last Name"
         className="mb-2 w-50"
-        onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+        onChange={(e) =>
+          setProfile((prev) => ({ ...prev, lastName: e.target.value }))
+        }
       />
 
       <FormControl
@@ -97,7 +115,9 @@ export default function Profile() {
         type="date"
         value={profile.dob ? profile.dob.slice(0, 10) : ""}
         className="mb-2 w-50"
-        onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
+        onChange={(e) =>
+          setProfile((prev) => ({ ...prev, dob: e.target.value }))
+        }
       />
 
       <FormControl
@@ -106,10 +126,16 @@ export default function Profile() {
         placeholder="E-mail"
         value={profile.email || ""}
         className="mb-2 w-50"
-        onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+        onChange={(e) =>
+          setProfile((prev) => ({ ...prev, email: e.target.value }))
+        }
       />
 
-      <FormControl value={profile.role || ""} className="mb-2 w-50" readOnly />
+      <FormControl
+        value={currentUser?.role || ""}
+        className="mb-2 w-50"
+        readOnly
+      />
 
       <Button className="mb-2 w-50" onClick={updateProfile}>
         Update Profile
