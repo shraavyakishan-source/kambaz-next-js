@@ -6,30 +6,63 @@ import { FaTrash, FaPencil } from "react-icons/fa6";
 import { TiDelete } from "react-icons/ti";
 import { FaPlusCircle } from "react-icons/fa";
 
+// --- Type Definitions ---
+type Assignment = {
+  id?: number;
+  title: string;
+  description: string;
+  due: string;
+  completed: boolean;
+};
+
+type Todo = {
+  id: number;
+  title: string;
+  completed: boolean;
+  editing?: boolean;
+};
+
 export default function WorkingWithObjectsAsynchronously() {
-  const [assignment, setAssignment] = useState<any>({});
-  const [todos, setTodos] = useState<any[]>([]);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // ✅ error state
+  const [assignment, setAssignment] = useState<Assignment>({
+    title: "",
+    description: "",
+    due: "",
+    completed: false,
+  });
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // ✅ Fetch assignment
+  // --- Fetch assignment ---
   const fetchAssignment = async () => {
-    const assignment = await client.fetchAssignment();
-    setAssignment(assignment);
+    try {
+      const assignment = await client.fetchAssignment();
+      setAssignment(assignment);
+    } catch (error: unknown) {
+      setErrorMessage("Failed to fetch assignment.");
+    }
   };
 
-  // ✅ Update assignment title
+  // --- Update assignment title ---
   const updateTitle = async (title: string) => {
-    const updatedAssignment = await client.updateTitle(title);
-    setAssignment(updatedAssignment);
+    try {
+      const updatedAssignment = await client.updateTitle(title);
+      setAssignment(updatedAssignment);
+    } catch (error: unknown) {
+      setErrorMessage("Failed to update title.");
+    }
   };
 
-  // ✅ Fetch all todos
+  // --- Fetch all todos ---
   const fetchTodos = async () => {
-    const todos = await client.fetchTodos();
-    setTodos(todos);
+    try {
+      const todos = await client.fetchTodos();
+      setTodos(todos);
+    } catch (error: unknown) {
+      setErrorMessage("Failed to fetch todos.");
+    }
   };
 
-  // ✅ Create new todo (POST)
+  // --- Create new todo ---
   const createNewTodo = async () => {
     try {
       const newTodo = await client.postNewTodo({
@@ -38,12 +71,11 @@ export default function WorkingWithObjectsAsynchronously() {
       });
       setTodos((prevTodos) => [...prevTodos, newTodo]);
       setErrorMessage(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setErrorMessage("Unable to create new todo.");
     }
   };
 
-  // ✅ Alternate create (POST)
   const postNewTodo = async () => {
     try {
       const newTodo = await client.postNewTodo({
@@ -52,20 +84,19 @@ export default function WorkingWithObjectsAsynchronously() {
       });
       setTodos((prevTodos) => [...prevTodos, newTodo]);
       setErrorMessage(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setErrorMessage("Unable to post new todo.");
     }
   };
 
-  // ✅ Delete todo with error handling
-  const deleteTodo = async (todo: any) => {
+  // --- Delete todo ---
+  const deleteTodo = async (todo: Todo) => {
     try {
       await client.deleteTodo(todo.id);
       setTodos((prev) => prev.filter((t) => t.id !== todo.id));
       setErrorMessage(null);
-    } catch (error: any) {
-      console.error(error);
-      setErrorMessage(error.response?.data?.message || "Error deleting todo.");
+    } catch (error: unknown) {
+      setErrorMessage("Error deleting todo.");
     }
   };
 
@@ -74,37 +105,35 @@ export default function WorkingWithObjectsAsynchronously() {
       await client.removeTodo(id);
       setTodos((prev) => prev.filter((t) => t.id !== id));
       setErrorMessage(null);
-    } catch (error: any) {
-      console.error(error);
-      setErrorMessage(error.response?.data?.message || "Error removing todo.");
+    } catch (error: unknown) {
+      setErrorMessage("Error removing todo.");
     }
   };
 
-  // ✅ Enter editing mode
-  const editTodo = (todo: any) => {
-    const updatedTodos = todos.map((t) =>
-      t.id === todo.id ? { ...t, editing: true } : t
+  // --- Edit todo ---
+  const editTodo = (todo: Todo) => {
+    setTodos((prev) =>
+      prev.map((t) => (t.id === todo.id ? { ...t, editing: true } : t))
     );
-    setTodos(updatedTodos);
   };
 
-  // ✅ Update todo with try/catch for 404 errors
-  const updateTodo = async (updated: any) => {
+  // --- Update todo ---
+  const updateTodo = async (updated: Todo) => {
     try {
       const saved = await client.updateTodo(updated.id, {
         title: updated.title,
         completed: updated.completed,
       });
-      const updatedTodos = todos.map((t) =>
-        t.id === updated.id
-          ? { ...saved, editing: updated.editing ?? false }
-          : t
+      setTodos((prev) =>
+        prev.map((t) =>
+          t.id === updated.id
+            ? { ...saved, editing: updated.editing ?? false }
+            : t
+        )
       );
-      setTodos(updatedTodos);
       setErrorMessage(null);
-    } catch (error: any) {
-      console.error(error);
-      setErrorMessage(error.response?.data?.message || "Error updating todo.");
+    } catch (error: unknown) {
+      setErrorMessage("Error updating todo.");
     }
   };
 
@@ -130,7 +159,7 @@ export default function WorkingWithObjectsAsynchronously() {
       {/* --- Assignment Section --- */}
       <h4>Assignment</h4>
       <FormControl
-        value={assignment.title || ""}
+        value={assignment.title}
         className="mb-2"
         onChange={(e) =>
           setAssignment({ ...assignment, title: e.target.value })
@@ -139,7 +168,7 @@ export default function WorkingWithObjectsAsynchronously() {
       <FormControl
         as="textarea"
         rows={3}
-        value={assignment.description || ""}
+        value={assignment.description}
         className="mb-2"
         onChange={(e) =>
           setAssignment({ ...assignment, description: e.target.value })
@@ -148,7 +177,7 @@ export default function WorkingWithObjectsAsynchronously() {
       <FormControl
         type="date"
         className="mb-2"
-        value={assignment.due || ""}
+        value={assignment.due}
         onChange={(e) => setAssignment({ ...assignment, due: e.target.value })}
       />
       <div className="form-check form-switch mb-3">
@@ -156,7 +185,7 @@ export default function WorkingWithObjectsAsynchronously() {
           className="form-check-input"
           type="checkbox"
           id="wd-completed"
-          checked={assignment.completed || false}
+          checked={assignment.completed}
           onChange={(e) =>
             setAssignment({ ...assignment, completed: e.target.checked })
           }

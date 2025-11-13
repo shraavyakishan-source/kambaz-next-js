@@ -1,7 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import * as db from "../../../Database";
 import { ListGroup, ListGroupItem, FormControl } from "react-bootstrap";
 import { BsGripVertical } from "react-icons/bs";
 import ModuleContrlButton from "./ModuleContrlButton";
@@ -36,7 +35,6 @@ export default function Modules() {
   const { cid } = useParams();
   const dispatch = useDispatch();
 
-  // ✅ Clean fix: no `any`, no external import
   const { modules } = useSelector((state: ReduxState) => state.modulesReducer);
 
   const [moduleName, setModuleName] = useState("");
