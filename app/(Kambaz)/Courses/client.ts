@@ -7,60 +7,68 @@ const HTTP_SERVER =
 const COURSES_API = `${HTTP_SERVER}/api/courses`;
 const USERS_API = `${HTTP_SERVER}/api/users`;
 
-// Define a proper Course type
-// client.ts
+// --- Response type for delete ---
+interface DeleteResponse {
+  success: boolean;
+  message?: string;
+}
 
-// get all courses
+// --- API Functions ---
+
+// Get all courses
 export const fetchAllCourses = async (): Promise<Course[]> => {
-  const { data } = await axios.get(COURSES_API);
+  const { data } = await axios.get<Course[]>(COURSES_API);
   return data;
 };
 
-// get courses for current user (requires session cookie)
+// Get courses for current user (requires session cookie)
 export const findMyCourses = async (): Promise<Course[]> => {
-  const { data } = await axiosWithCredentials.get(
+  const { data } = await axiosWithCredentials.get<Course[]>(
     `${USERS_API}/current/courses`
   );
   return data;
 };
 
-// enroll current user in a course
-export const enroll = async (courseId: string) => {
-  const { data } = await axiosWithCredentials.post(
+// Enroll current user in a course
+export const enroll = async (courseId: string): Promise<Course> => {
+  const { data } = await axiosWithCredentials.post<Course>(
     `${USERS_API}/current/courses`,
     { courseId }
   );
   return data;
 };
 
-// unenroll current user from a course
-export const unenroll = async (courseId: string) => {
-  const { data } = await axiosWithCredentials.delete(
-    `${USERS_API}/current/courses`,
-    {
-      data: { courseId },
-    }
-  );
-  return data;
+// Unenroll current user from a course
+export const unenroll = async (courseId: string): Promise<void> => {
+  await axiosWithCredentials.delete(`${USERS_API}/current/courses`, {
+    data: { courseId },
+  });
 };
 
-// create a new course
+// Create a new course
 export const createCourse = async (course: Course): Promise<Course> => {
-  const { data } = await axiosWithCredentials.post(
+  const { data } = await axiosWithCredentials.post<Course>(
     `${USERS_API}/current/courses`,
     course
   );
   return data;
 };
 
-// delete a course
-export const deleteCourse = async (courseId: string): Promise<any> => {
-  const { data } = await axios.delete(`${COURSES_API}/${courseId}`);
+// Delete a course
+export const deleteCourse = async (
+  courseId: string
+): Promise<DeleteResponse> => {
+  const { data } = await axios.delete<DeleteResponse>(
+    `${COURSES_API}/${courseId}`
+  );
   return data;
 };
 
-// update a course
+// Update a course
 export const updateCourse = async (course: Course): Promise<Course> => {
-  const { data } = await axios.put(`${COURSES_API}/${course._id}`, course);
+  const { data } = await axios.put<Course>(
+    `${COURSES_API}/${course._id}`,
+    course
+  );
   return data;
 };

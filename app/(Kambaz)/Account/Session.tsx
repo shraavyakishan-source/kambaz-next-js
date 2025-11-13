@@ -1,4 +1,6 @@
 "use client";
+import { User } from "../types/Account";
+
 import * as client from "./client";
 import { useEffect, useState, ReactNode } from "react";
 import { setCurrentUser } from "./reducer";
@@ -19,8 +21,13 @@ export default function Session({ children }: SessionProps) {
         if (currentUser) {
           dispatch(setCurrentUser(currentUser)); // store user in Redux
         }
-      } catch (err: any) {
-        console.error("Session fetch error:", err);
+      } catch (err: unknown) {
+        // Narrow error type safely
+        if (err instanceof Error) {
+          console.error("Session fetch error:", err.message);
+        } else {
+          console.error("Session fetch error:", err);
+        }
       } finally {
         setPending(false); // done loading
       }
