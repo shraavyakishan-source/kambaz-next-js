@@ -11,6 +11,9 @@ import {
   AssignmentGroup,
   Quiz,
 } from "../reducer";
+import dynamic from "next/dynamic";
+import "react-quill-new/dist/quill.snow.css";
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 export default function QuizDetailsPage() {
   const { cid, qid } = useParams<{ cid: string; qid: string }>();
@@ -71,17 +74,17 @@ export default function QuizDetailsPage() {
       dueDate,
       availableDate,
       untilDate,
-      published: publish,
+      //published: publish,
     };
-
+    //Will publish the quiz once save&publish is clicked
     dispatch(updateQuiz(updatedQuiz));
 
     if (publish) {
       dispatch(togglePublish(quiz._id));
       router.push(`/Courses/${cid}/Quizzes`);
-    } else {
-      router.push(`/Courses/${cid}/Quizzes/${qid}`);
+      return;
     }
+    router.push(`/Courses/${cid}/Quizzes/${qid}/QuizDetails`);
   };
 
   // 🟢 Handle Cancel
@@ -128,12 +131,19 @@ export default function QuizDetailsPage() {
 
             {/* Description */}
             <div className="mb-4">
-              <label className="form-label fw-bold">Description</label>
-              <textarea
-                className="form-control"
-                rows={5}
+              <label className="form-label fw-bold">Quiz Instructions</label>
+              <ReactQuill
+                theme="snow"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={setDescription}
+                modules={{
+                  toolbar: [
+                    ["bold", "italic", "underline"],
+                    ["link", "blockquote"],
+                    [{ list: "ordered" }, { list: "bullet" }],
+                    ["clean"],
+                  ],
+                }}
               />
             </div>
 
@@ -180,30 +190,49 @@ export default function QuizDetailsPage() {
                 <div className="col-md-4 text-md-end">
                   <label className="form-label">Shuffle Answers</label>
                 </div>
-                <div className="col-md-8">
-                  <select
-                    className="form-select w-25"
-                    value={shuffleAnswers ? "Yes" : "No"}
-                    onChange={(e) =>
-                      setShuffleAnswers(e.target.value === "Yes")
-                    }
-                  >
-                    <option>Yes</option>
-                    <option>No</option>
-                  </select>
+
+                <div className="col-md-8 d-flex align-items-center">
+                  <input
+                    type="checkbox"
+                    checked={shuffleAnswers}
+                    onChange={(e) => setShuffleAnswers(e.target.checked)}
+                    className="form-check-input me-2"
+                  />
+                  <span>{shuffleAnswers ? "Enabled" : "Disabled"}</span>
                 </div>
 
                 {/* Time Limit */}
                 <div className="col-md-4 text-md-end">
-                  <label className="form-label">Time Limit (minutes)</label>
+                  <label className="form-label">Time Limit</label>
                 </div>
-                <div className="col-md-8">
-                  <input
-                    type="number"
-                    className="form-control w-25"
-                    value={timeLimit}
-                    onChange={(e) => setTimeLimit(Number(e.target.value))}
-                  />
+
+                <div className="col-md-8 d-flex align-items-center gap-3">
+                  {/* Checkbox */}
+                  <div className="form-check">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      checked={timeLimit > 0}
+                      onChange={
+                        (e) =>
+                          e.target.checked ? setTimeLimit(30) : setTimeLimit(0) // default to 30 min
+                      }
+                    />
+                    <label className="form-check-label">
+                      Enable Time Limit
+                    </label>
+                  </div>
+
+                  {/* Input field—visible only when enabled */}
+                  {timeLimit > 0 && (
+                    <input
+                      type="number"
+                      className="form-control w-25"
+                      value={timeLimit}
+                      min={1}
+                      onChange={(e) => setTimeLimit(Number(e.target.value))}
+                    />
+                  )}
                 </div>
 
                 {/* Multiple Attempts */}

@@ -83,6 +83,28 @@ export default function QuizEditor({
         />
       </Form.Group>
 
+      {/* Available From */}
+      <Form.Group className="mb-3">
+        <Form.Label>Available From</Form.Label>
+        <Form.Control
+          type="datetime-local"
+          name="availableDate"
+          value={formData.availableDate}
+          onChange={handleChange}
+        />
+      </Form.Group>
+
+      {/* Available Until */}
+      <Form.Group className="mb-3">
+        <Form.Label>Available Until</Form.Label>
+        <Form.Control
+          type="datetime-local"
+          name="untilDate"
+          value={formData.untilDate}
+          onChange={handleChange}
+        />
+      </Form.Group>
+
       {/* Points */}
       <Form.Group className="mb-3">
         <Form.Label>Points</Form.Label>

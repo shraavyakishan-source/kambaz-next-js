@@ -30,7 +30,13 @@ export default function Quizzes() {
 
   // Filter quizzes for this course
   const quizzes = useSelector((state: RootState) =>
-    state.quizzesReducer.filter((q) => q.course === cid)
+    state.quizzesReducer
+      .filter((q) => q.course === cid)
+      .sort((a, b) => {
+        const dateA = a.availableDate ? new Date(a.availableDate).getTime() : 0;
+        const dateB = b.availableDate ? new Date(b.availableDate).getTime() : 0;
+        return dateA - dateB; // earliest first
+      })
   );
 
   const [showEditor, setShowEditor] = useState(false);
@@ -132,7 +138,13 @@ export default function Quizzes() {
                 >
                   <span className="text-danger fw-bold">{q.title}</span>
                   <small className="text-muted d-block">
-                    {q.status ?? "Available"} | Due {q.dueDate ?? "TBD"} |{" "}
+                    {q.published
+                      ? q.availableDate
+                        ? `Available until ${q.untilDate || "TBD"}`
+                        : "Not available"
+                      : "Not published"}
+                    {" | "}
+                    {q.dueDate ? `Due ${q.dueDate}` : "Due TBD"} {" | "}
                     {q.points ?? 10} pts | {q.numQuestions ?? 0} Questions
                   </small>
                 </Link>
