@@ -9,17 +9,28 @@ export const USERS_API = `${HTTP_SERVER}/api/users`;
 // --- Type Definitions ---
 export interface SigninCredentials {
   username: string;
-  email?: string;
   password: string;
 }
 
 // --- API Functions ---
 
+// --- GET all users ---
+export const findAllUsers = async (): Promise<User[]> => {
+  const response = await axiosWithCredentials.get(USERS_API);
+  return response.data;
+};
+
 // Sign in
 export const signin = async (credentials: SigninCredentials): Promise<User> => {
+  const trimmed = {
+    username: credentials.username.trim(),
+    password: credentials.password.trim(),
+  };
+  console.log("Attempting signin with:", credentials);
+
   const response = await axiosWithCredentials.post(
     `${USERS_API}/signin`,
-    credentials
+    trimmed
   );
   return response.data;
 };
@@ -31,8 +42,7 @@ export const signup = async (user: User): Promise<User> => {
 };
 
 // Update user
-export const updateUser = async (user: User): Promise<User> => {
-  if (!user._id) throw new Error("User ID is required to update");
+export const updateUser = async (user: any) => {
   const response = await axiosWithCredentials.put(
     `${USERS_API}/${user._id}`,
     user
@@ -49,4 +59,36 @@ export const profile = async (): Promise<User> => {
 // Sign out
 export const signout = async (): Promise<void> => {
   await axiosWithCredentials.post(`${USERS_API}/signout`);
+};
+
+export const findUsersByRole = async (role: string) => {
+  const response = await axiosWithCredentials.get(`${USERS_API}?role=${role}`);
+  return response.data;
+};
+
+export const findUsersByPartialName = async (name: string) => {
+  const response = await axiosWithCredentials.get(`${USERS_API}?name=${name}`);
+  return response.data;
+};
+
+// FIXED: This was missing withCredentials
+export const findUserById = async (id: string) => {
+  console.log("Client: Finding user by ID:", id);
+  console.log("Client: Using URL:", `${USERS_API}/${id}`);
+
+  const response = await axiosWithCredentials.get(`${USERS_API}/${id}`);
+  console.log("Client: Response received:", response.data);
+
+  return response.data;
+};
+
+// FIXED: This was missing withCredentials
+export const deleteUser = async (userId: string) => {
+  const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}`);
+  return response.data;
+};
+
+export const createUser = async (user: any) => {
+  const response = await axiosWithCredentials.post(`${USERS_API}`, user);
+  return response.data;
 };

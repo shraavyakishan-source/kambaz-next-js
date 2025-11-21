@@ -13,7 +13,6 @@ export default function Signin() {
   const [credentials, setCredentials] = useState<SigninCredentials>({
     username: "",
     password: "",
-    email: "", // include if required by the type
   });
 
   const dispatch = useDispatch();

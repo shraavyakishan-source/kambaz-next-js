@@ -48,6 +48,19 @@ export default function AccountNavigation() {
           Profile
         </NavLink>
       </NavItem>
+
+      {/* 👇 ADMIN-ONLY USERS LINK */}
+      {currentUser && currentUser.role === "ADMIN" && (
+        <NavItem>
+          <NavLink
+            href="/Account/Users"
+            as={Link}
+            className={`nav-link ${pathname.endsWith("Users") ? "active" : ""}`}
+          >
+            Users
+          </NavLink>
+        </NavItem>
+      )}
     </Nav>
   );
 }
