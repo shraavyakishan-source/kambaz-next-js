@@ -23,6 +23,7 @@ export default function ModuleControlButtons({
       <FaPencil
         onClick={() => editModule(moduleId)}
         className="text-primary me-3"
+        style={{ cursor: "pointer" }}
       />
       {/*  DELETE ICON - Deletes the module when clicked
        */}
