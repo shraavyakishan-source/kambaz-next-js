@@ -18,13 +18,15 @@ export interface User {
   totalActivity?: string;
 }
 
+interface PeopleTableProps {
+  users?: User[];
+  fetchUsers?: () => void; // made optional
+}
+
 export default function PeopleTable({
   users = [],
   fetchUsers,
-}: {
-  users?: User[];
-  fetchUsers: () => void;
-}) {
+}: PeopleTableProps) {
   const [showUserId, setShowUserId] = useState<string | null>(null);
 
   const handleUserClick = (userId: string) => {
@@ -35,7 +37,7 @@ export default function PeopleTable({
   const handleClose = () => {
     console.log("Closing details panel");
     setShowUserId(null);
-    fetchUsers();
+    if (fetchUsers) fetchUsers(); // call only if defined
   };
 
   console.log("PeopleTable render - showUserId:", showUserId);
