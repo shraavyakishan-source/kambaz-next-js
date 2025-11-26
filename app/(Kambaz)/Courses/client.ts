@@ -23,7 +23,7 @@ export const fetchAllCourses = async (): Promise<Course[]> => {
 // Get courses the current user is enrolled in
 export const fetchMyCourses = async (): Promise<Course[]> => {
   const { data } = await axiosWithCredentials.get<Course[]>(
-    `${COURSES_API}/enrolled/current`
+    `${COURSES_API}/enrollments/current`
   );
   return data;
 };
@@ -64,4 +64,11 @@ export const enroll = async (courseId: string): Promise<Course> => {
 // Unenroll current user from a course
 export const unenroll = async (courseId: string): Promise<void> => {
   await axiosWithCredentials.delete(`${COURSES_API}/unenroll/${courseId}`);
+};
+// Fetch all enrollments for the current user
+export const fetchEnrollments = async () => {
+  const { data } = await axiosWithCredentials.get(
+    `${COURSES_API}/enrollments/current`
+  );
+  return data;
 };

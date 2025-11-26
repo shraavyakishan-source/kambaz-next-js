@@ -1,4 +1,3 @@
-// app/Courses/enrollmentsReducer.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as db from "../Database";
 
@@ -8,14 +7,18 @@ interface Enrollment {
 }
 
 const initialState: { enrollments: Enrollment[] } = {
-  enrollments: db.enrollments,
+  enrollments: [],
 };
 
 const enrollmentsSlice = createSlice({
   name: "enrollments",
   initialState,
   reducers: {
-    enroll: (state, action: PayloadAction<Enrollment>) => {
+    setEnrollments: (state, action: PayloadAction<Enrollment[]>) => {
+      state.enrollments = action.payload;
+    },
+
+    addEnrollment: (state, action: PayloadAction<Enrollment>) => {
       const exists = state.enrollments.some(
         (e) =>
           e.user === action.payload.user && e.course === action.payload.course
@@ -24,7 +27,7 @@ const enrollmentsSlice = createSlice({
         state.enrollments.push(action.payload);
       }
     },
-    unenroll: (state, action: PayloadAction<Enrollment>) => {
+    removeEnrollment: (state, action: PayloadAction<Enrollment>) => {
       state.enrollments = state.enrollments.filter(
         (e) =>
           !(
@@ -35,5 +38,6 @@ const enrollmentsSlice = createSlice({
   },
 });
 
-export const { enroll, unenroll } = enrollmentsSlice.actions;
+export const { setEnrollments, addEnrollment, removeEnrollment } =
+  enrollmentsSlice.actions;
 export default enrollmentsSlice.reducer;

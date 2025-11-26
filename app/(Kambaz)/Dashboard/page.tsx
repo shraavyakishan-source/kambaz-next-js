@@ -14,11 +14,14 @@ import {
   Button,
   FormControl,
 } from "react-bootstrap";
+
 import { setCourses } from "../Courses/reducer";
 import type { RootState } from "../store";
 import type { Course } from "../types/Course";
+
 import {
   fetchAllCourses,
+  fetchEnrollments,
   createCourse,
   updateCourse,
   deleteCourse,
@@ -26,15 +29,25 @@ import {
   unenroll as unenrollAPI,
 } from "../Courses/client";
 
+import {
+  addEnrollment,
+  removeEnrollment,
+  setEnrollments,
+} from "../Courses/enrollmentsReducer";
+
 export default function Dashboard() {
   const dispatch = useDispatch();
-  const { courses } = useSelector((state: RootState) => state.coursesReducer);
-  const { enrollments } = useSelector(
-    (state: RootState) => state.enrollmentsReducer
+
+  const courses = useSelector((s: RootState) => s.coursesReducer.courses);
+  const enrollments = useSelector(
+    (s: RootState) => s.enrollmentsReducer.enrollments
   );
-  const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
+  const currentUser = useSelector(
+    (s: RootState) => s.accountReducer.currentUser
   );
+
+  const [loading, setLoading] = useState(true);
+  const [showAllCourses, setShowAllCourses] = useState(false);
 
   const blankCourse: Course = {
     _id: "",
@@ -47,150 +60,165 @@ export default function Dashboard() {
   };
 
   const [course, setCourse] = useState<Course>({ ...blankCourse });
-  const [showAllCourses, setShowAllCourses] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  // Fetch all courses on mount
+  // ------------------------------------
+  // LOAD DATA FROM DATABASE
+  // ------------------------------------
   useEffect(() => {
     if (!currentUser) return;
-    const loadCourses = async () => {
+
+    const load = async () => {
       try {
-        const data = await fetchAllCourses();
-        dispatch(setCourses(data));
+        setLoading(true);
+
+        const list = await fetchAllCourses();
+        dispatch(setCourses(list));
+
+        const enrs = await fetchEnrollments();
+        dispatch(setEnrollments(enrs));
       } catch (err) {
-        console.error("Failed to load courses", err);
+        console.error("Dashboard load error:", err);
       } finally {
         setLoading(false);
       }
     };
-    loadCourses();
-  }, [dispatch, currentUser]);
 
-  if (!currentUser)
-    return (
-      <div className="p-4">
-        <h3>Please sign in to view your Dashboard.</h3>
-      </div>
-    );
-  if (loading) return <div className="p-4">Loading courses...</div>;
+    load();
+  }, [currentUser, dispatch]);
 
-  const userEnrollments = enrollments.filter((e) => e.user === currentUser._id);
-  const enrolledCourseIds = userEnrollments.map((e) => e.course);
-  const displayedCourses = showAllCourses
-    ? courses
-    : courses.filter((c) => enrolledCourseIds.includes(c._id));
+  // ------------------------------------
+  // SAFE USER CHECKS
+  // ------------------------------------
+  const userId = currentUser?._id ?? "";
+
+  const userEnrollments = enrollments.filter((e) => e.user === userId);
+  const enrolledCourseIds = new Set(userEnrollments.map((e) => e.course));
 
   const canEdit =
-    currentUser.role === "FACULTY" || currentUser.role === "ADMIN";
+    currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
 
-  // Add a new course
+  const displayedCourses = showAllCourses
+    ? courses
+    : courses.filter((c) => enrolledCourseIds.has(c._id));
+
+  // ------------------------------------
+  // CRUD + ENROLLMENT ACTIONS
+  // ------------------------------------
   const onAddNewCourse = async () => {
-    if (!currentUser) return;
-    const newCourse: Course = { ...course, _id: crypto.randomUUID() };
     try {
-      const saved = await createCourse(newCourse);
+      const saved = await createCourse(course);
       dispatch(setCourses([...courses, saved]));
       setCourse({ ...blankCourse });
     } catch (err) {
-      console.error("Failed to create course", err);
+      console.error("Create error:", err);
     }
   };
 
-  // Update a course
   const onUpdateCourse = async () => {
+    if (!course._id) return;
+
     try {
-      if (!course._id) return;
-      const updated = await updateCourse(course);
+      const saved = await updateCourse(course);
       dispatch(
-        setCourses(courses.map((c) => (c._id === updated._id ? updated : c)))
+        setCourses(courses.map((c) => (c._id === saved._id ? saved : c)))
       );
       setCourse({ ...blankCourse });
     } catch (err) {
-      console.error("Failed to update course", err);
+      console.error("Update error:", err);
     }
   };
 
-  // Delete a course
   const onDeleteCourse = async (courseId: string) => {
     try {
       await deleteCourse(courseId);
       dispatch(setCourses(courses.filter((c) => c._id !== courseId)));
     } catch (err) {
-      console.error("Failed to delete course", err);
+      console.error("Delete error:", err);
     }
   };
 
   const handleEnroll = async (courseId: string) => {
     try {
       await enrollAPI(courseId);
+      dispatch(addEnrollment({ user: userId, course: courseId }));
     } catch (err) {
-      console.error("Enroll failed", err);
+      console.error("Enroll error:", err);
     }
   };
 
   const handleUnenroll = async (courseId: string) => {
     try {
       await unenrollAPI(courseId);
+      dispatch(removeEnrollment({ user: userId, course: courseId }));
     } catch (err) {
-      console.error("Unenroll failed", err);
+      console.error("Unenroll error:", err);
     }
   };
 
+  // ------------------------------------
+  // UI
+  // ------------------------------------
+  if (!currentUser)
+    return <div className="p-4">Please sign in to view dashboard.</div>;
+
   return (
-    <div id="wd-dashboard" className="p-4">
+    <div className="p-4" id="wd-dashboard">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1 id="wd-dashboard-title">Dashboard</h1>
+        <h1>Dashboard</h1>
+
         <Button
           variant="primary"
           onClick={() => setShowAllCourses(!showAllCourses)}
         >
-          {showAllCourses ? "Show My Enrollments" : "Show All Courses"}
+          {showAllCourses ? "Show My Courses" : "Show All Courses"}
         </Button>
       </div>
 
       <h4 className="mb-4">
-        Welcome, {currentUser.firstName} {currentUser.lastName} (
-        {currentUser.role})
+        Welcome, {currentUser?.firstName} {currentUser?.lastName} (
+        {currentUser?.role})
       </h4>
 
       {canEdit && (
         <>
-          <h5>Instructor/Admin Tools</h5>
+          <h5>Instructor / Admin Tools</h5>
+
           <FormControl
-            value={course.name}
             className="mb-2"
+            value={course.name}
             placeholder="Course Name"
             onChange={(e) => setCourse({ ...course, name: e.target.value })}
           />
+
           <FormControl
-            value={course.description}
             className="mb-2"
+            value={course.description}
             placeholder="Course Description"
             onChange={(e) =>
               setCourse({ ...course, description: e.target.value })
             }
           />
-          <div className="d-flex mb-2 gap-2">
-            <Button variant="primary" onClick={onAddNewCourse}>
+
+          <div className="d-flex gap-2 mb-3">
+            <Button onClick={onAddNewCourse} variant="primary">
               Add
             </Button>
-            <Button variant="secondary" onClick={onUpdateCourse}>
+            <Button onClick={onUpdateCourse} variant="secondary">
               Update
             </Button>
           </div>
-          <hr />
         </>
       )}
 
-      <h2 id="wd-dashboard-published">
+      <h2>
         {showAllCourses ? "All Courses" : "My Enrolled Courses"} (
         {displayedCourses.length})
       </h2>
       <hr />
 
       <Row xs={1} md={3} className="g-4">
-        {displayedCourses.map((c: Course) => {
-          const isEnrolled = enrolledCourseIds.includes(c._id);
+        {displayedCourses.map((c) => {
+          const isEnrolled = enrolledCourseIds.has(c._id);
 
           return (
             <Col key={c._id}>
@@ -202,48 +230,46 @@ export default function Dashboard() {
                   <CardImg
                     variant="top"
                     src={c.image || "/Images/img.jpeg"}
-                    width="100%"
                     height={140}
                   />
                   <CardBody>
-                    <CardTitle className="text-truncate">{c.name}</CardTitle>
-                    <CardText
-                      className="overflow-hidden"
-                      style={{ height: "80px" }}
-                    >
+                    <CardTitle>{c.name}</CardTitle>
+                    <CardText style={{ maxHeight: "70px", overflow: "hidden" }}>
                       {c.description}
                     </CardText>
                   </CardBody>
                 </Link>
 
-                <div className="d-flex flex-wrap gap-2 p-2">
-                  {isEnrolled ? (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleUnenroll(c._id)}
-                    >
-                      Unenroll
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={() => handleEnroll(c._id)}
-                    >
-                      Enroll
-                    </Button>
-                  )}
+                <div className="d-flex gap-2 p-2 flex-wrap">
+                  {showAllCourses &&
+                    (isEnrolled ? (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleUnenroll(c._id)}
+                      >
+                        Unenroll
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="success"
+                        size="sm"
+                        onClick={() => handleEnroll(c._id)}
+                      >
+                        Enroll
+                      </Button>
+                    ))}
 
                   {canEdit && (
                     <>
                       <Button
+                        href={`/Courses/${c._id}/Home`}
                         variant="primary"
                         size="sm"
-                        href={`/Courses/${c._id}/Home`}
                       >
                         Go
                       </Button>
+
                       <Button
                         variant="warning"
                         size="sm"
@@ -251,6 +277,7 @@ export default function Dashboard() {
                       >
                         Edit
                       </Button>
+
                       <Button
                         variant="danger"
                         size="sm"
