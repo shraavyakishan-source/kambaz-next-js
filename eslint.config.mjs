@@ -13,10 +13,6 @@ const compat = new FlatCompat({
 });
 
 export default [
-  // Next.js defaults
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-
-  // Your overrides
   {
     files: ["**/*.{ts,tsx,js,jsx}"],
     plugins: {
