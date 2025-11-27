@@ -7,6 +7,7 @@ import { FormControl } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
 
 export default function Users() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [users, setUsers] = useState<any[]>([]);
   const [role, setRole] = useState("");
   const [name, setName] = useState("");
