@@ -10,6 +10,7 @@ export const USERS_API = `${HTTP_SERVER}/api/users`;
 export interface SigninCredentials {
   username: string;
   password: string;
+  email?: string;
 }
 
 // --- API Functions ---
