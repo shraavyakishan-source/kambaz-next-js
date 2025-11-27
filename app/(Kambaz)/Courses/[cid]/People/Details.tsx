@@ -13,6 +13,7 @@ interface PeopleDetailsProps {
 }
 
 export default function PeopleDetails({ uid, onClose }: PeopleDetailsProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +28,7 @@ export default function PeopleDetails({ uid, onClose }: PeopleDetailsProps) {
       setError(null);
       const u = await client.findUserById(uid);
       setUser(u);
-      setName(`${u.firstName} ${u.lastName}`);
+      setName(`${u.firstName} ${u.lastName}`); // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Error fetching user:", err);
       setError(err.message || "Failed to fetch user");

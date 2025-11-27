@@ -42,6 +42,7 @@ export const signup = async (user: User): Promise<User> => {
 };
 
 // Update user
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const updateUser = async (user: any) => {
   const response = await axiosWithCredentials.put(
     `${USERS_API}/${user._id}`,
@@ -87,7 +88,7 @@ export const deleteUser = async (userId: string) => {
   const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}`);
   return response.data;
 };
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createUser = async (user: any) => {
   const response = await axiosWithCredentials.post(`${USERS_API}`, user);
   return response.data;
