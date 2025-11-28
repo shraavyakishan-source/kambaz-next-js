@@ -21,7 +21,7 @@ export default function CourseNavigation() {
       label: "Grades",
       path: "https://northeastern.instructure.com/courses/225999/grades",
     },
-    { label: "People", path: `/Courses/${cid}/People/Table` },
+    { label: "People", path: `/Courses/${cid}/People` },
   ];
 
   return (
