@@ -36,7 +36,7 @@ export interface Quiz {
   accessCode?: string;
   oneQuestionAtATime: boolean;
   webcamRequired: boolean;
-  lockQuestionsAfterAnswering: boolean;
+  lockQuestions: boolean; // <- updated field name
   availableDate?: string;
   untilDate?: string;
 }
@@ -44,48 +44,7 @@ export interface Quiz {
 // --------------------
 // INITIAL STATE
 // --------------------
-const initialState: Quiz[] = [
-  {
-    _id: uuidv4(),
-    title: "Q1 - HTML",
-    dueDate: "Sep 21 at 1pm",
-    points: 29,
-    numQuestions: 11,
-    course: "CS1234",
-    status: "Closed",
-    published: false,
-    quizType: "Graded Quiz",
-    assignmentGroup: "Quizzes",
-    shuffleAnswers: true,
-    timeLimit: 20,
-    multipleAttempts: false,
-    showCorrectAnswers: "Never",
-    accessCode: "",
-    oneQuestionAtATime: true,
-    webcamRequired: false,
-    lockQuestionsAfterAnswering: false,
-  },
-  {
-    _id: uuidv4(),
-    title: "Q2 - CSS",
-    dueDate: "Oct 5 at 1am",
-    points: 27,
-    numQuestions: 7,
-    course: "CS1234",
-    status: "Closed",
-    published: false,
-    quizType: "Practice Quiz",
-    assignmentGroup: "Quizzes",
-    shuffleAnswers: true,
-    timeLimit: 15,
-    multipleAttempts: false,
-    showCorrectAnswers: "After Due Date",
-    accessCode: "",
-    oneQuestionAtATime: true,
-    webcamRequired: false,
-    lockQuestionsAfterAnswering: false,
-  },
-];
+const initialState: Quiz[] = [];
 
 // --------------------
 // SLICE DEFINITION
@@ -103,7 +62,7 @@ const quizSlice = createSlice({
         points: action.payload.points ?? 0,
         numQuestions: action.payload.numQuestions ?? 0,
         status: action.payload.status ?? "Draft",
-        published: false,
+        published: action.payload.published ?? false,
         description: action.payload.description ?? "",
         quizType: action.payload.quizType ?? "Graded Quiz",
         assignmentGroup: action.payload.assignmentGroup ?? "Quizzes",
@@ -114,8 +73,7 @@ const quizSlice = createSlice({
         accessCode: action.payload.accessCode ?? "",
         oneQuestionAtATime: action.payload.oneQuestionAtATime ?? true,
         webcamRequired: action.payload.webcamRequired ?? false,
-        lockQuestionsAfterAnswering:
-          action.payload.lockQuestionsAfterAnswering ?? false,
+        lockQuestions: action.payload.lockQuestions ?? false, // <- updated
         availableDate: action.payload.availableDate,
         untilDate: action.payload.untilDate,
       };

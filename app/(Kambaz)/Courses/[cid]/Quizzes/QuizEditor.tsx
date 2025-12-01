@@ -1,7 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useEffect, useState } from "react";
 import { Button, Form } from "react-bootstrap";
-import { Quiz } from "./reducer";
+import * as client from "./client";
+import { Quiz } from "./types";
 
 interface QuizEditorProps {
   quiz?: Quiz;
@@ -16,52 +18,68 @@ export default function QuizEditor({
   closeModal,
   onSave,
 }: QuizEditorProps) {
-  const [formData, setFormData] = useState<Quiz>({
-    _id: quiz?._id || "",
+  const [formData, setFormData] = useState<Partial<Quiz>>({
+    _id: quiz?._id,
     title: quiz?.title || "",
-    dueDate: quiz?.dueDate || "",
-    points: quiz?.points || 20,
-    numQuestions: quiz?.numQuestions || 0,
-    course: cid,
-    status: quiz?.status || "Draft",
-    published: quiz?.published ?? false,
     description: quiz?.description || "",
-    quizType: quiz?.quizType || "Graded Quiz",
-    assignmentGroup: quiz?.assignmentGroup || "Quizzes",
+    course: cid,
+    points: quiz?.points ?? 20,
+    numQuestions: quiz?.numQuestions ?? 0,
+    published: quiz?.published ?? false,
+    availableDate: quiz?.availableDate || "",
+    untilDate: quiz?.untilDate || "",
+    dueDate: quiz?.dueDate || "",
     shuffleAnswers: quiz?.shuffleAnswers ?? true,
-    timeLimit: quiz?.timeLimit ?? 20,
     multipleAttempts: quiz?.multipleAttempts ?? false,
     showCorrectAnswers: quiz?.showCorrectAnswers || "Never",
     accessCode: quiz?.accessCode || "",
     oneQuestionAtATime: quiz?.oneQuestionAtATime ?? true,
     webcamRequired: quiz?.webcamRequired ?? false,
-    lockQuestionsAfterAnswering: quiz?.lockQuestionsAfterAnswering ?? false,
-    availableDate: quiz?.availableDate || "",
-    untilDate: quiz?.untilDate || "",
+    lockQuestions: (quiz as any)?.lockQuestions ?? false,
+    status: quiz?.status || "Draft",
   });
 
   useEffect(() => {
-    if (quiz) setFormData(quiz);
+    if (quiz) {
+      setFormData((prev) => ({ ...prev, ...quiz }));
+    }
   }, [quiz]);
 
   const handleChange = (
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const target = e.target;
+    const name = target.name;
+
+    // For checkboxes
+    if (target instanceof HTMLInputElement && target.type === "checkbox") {
+      setFormData((prev) => ({ ...prev, [name]: target.checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: target.value }));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
-    closeModal();
+    try {
+      let saved: Quiz;
+      if (formData._id) {
+        saved = await client.updateQuizForCourse(formData._id!, formData);
+      } else {
+        saved = await client.createQuizForCourse(cid, formData);
+      }
+      onSave(saved);
+      closeModal();
+    } catch (err: any) {
+      console.error("Failed to save quiz:", err);
+      alert("Failed to save quiz: " + (err?.message || err));
+    }
   };
 
   return (
     <Form onSubmit={handleSubmit}>
-      {/* Title */}
       <Form.Group className="mb-3">
         <Form.Label>Title</Form.Label>
         <Form.Control
@@ -72,81 +90,93 @@ export default function QuizEditor({
         />
       </Form.Group>
 
-      {/* Due Date */}
       <Form.Group className="mb-3">
-        <Form.Label>Due Date</Form.Label>
+        <Form.Label>Description</Form.Label>
         <Form.Control
-          name="dueDate"
-          value={formData.dueDate}
+          as="textarea"
+          name="description"
+          value={formData.description}
           onChange={handleChange}
-          placeholder="e.g. Dec 7 at 1pm"
         />
       </Form.Group>
 
-      {/* Available From */}
+      <Form.Group className="mb-3">
+        <Form.Label>Due Date</Form.Label>
+        <Form.Control
+          type="datetime-local"
+          name="dueDate"
+          value={formData.dueDate || ""}
+          onChange={handleChange}
+        />
+      </Form.Group>
+
       <Form.Group className="mb-3">
         <Form.Label>Available From</Form.Label>
         <Form.Control
           type="datetime-local"
           name="availableDate"
-          value={formData.availableDate}
+          value={formData.availableDate || ""}
           onChange={handleChange}
         />
       </Form.Group>
 
-      {/* Available Until */}
       <Form.Group className="mb-3">
         <Form.Label>Available Until</Form.Label>
         <Form.Control
           type="datetime-local"
           name="untilDate"
-          value={formData.untilDate}
+          value={formData.untilDate || ""}
           onChange={handleChange}
         />
       </Form.Group>
 
-      {/* Points */}
       <Form.Group className="mb-3">
         <Form.Label>Points</Form.Label>
         <Form.Control
           type="number"
           name="points"
-          value={formData.points}
+          min={0}
+          value={formData.points || 0}
           onChange={handleChange}
         />
       </Form.Group>
 
-      {/* Number of Questions */}
       <Form.Group className="mb-3">
         <Form.Label>Number of Questions</Form.Label>
         <Form.Control
           type="number"
           name="numQuestions"
-          value={formData.numQuestions}
+          min={0}
+          value={formData.numQuestions || 0}
           onChange={handleChange}
         />
       </Form.Group>
 
-      {/* Status */}
       <Form.Group className="mb-3">
-        <Form.Label>Status</Form.Label>
-        <Form.Select
-          name="status"
-          value={formData.status}
+        <Form.Check
+          type="checkbox"
+          label="Published"
+          name="published"
+          checked={!!formData.published}
           onChange={handleChange}
-        >
-          <option value="Available">Available</option>
-          <option value="Closed">Closed</option>
-          <option value="Not Available">Not Available</option>
-        </Form.Select>
+        />
       </Form.Group>
 
-      {/* Buttons */}
+      <Form.Group className="mb-3">
+        <Form.Check
+          type="checkbox"
+          label="Shuffle Answers"
+          name="shuffleAnswers"
+          checked={!!formData.shuffleAnswers}
+          onChange={handleChange}
+        />
+      </Form.Group>
+
       <div className="d-flex justify-content-end">
         <Button variant="secondary" onClick={closeModal} className="me-2">
           Cancel
         </Button>
-        <Button variant="danger" type="submit">
+        <Button variant="primary" type="submit">
           Save
         </Button>
       </div>

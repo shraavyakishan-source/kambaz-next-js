@@ -1,20 +1,41 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import { Button, Card } from "react-bootstrap";
-import Link from "next/link";
-import { RootState } from "../../../../../store";
 
 export default function QuizDetails() {
   const { cid, qid } = useParams();
   const router = useRouter();
-  const quiz = useSelector((state: RootState) =>
-    state.quizzesReducer.find((q) => q._id === qid)
-  );
 
-  if (!quiz) {
-    return <p className="text-center mt-4">Quiz not found.</p>;
-  }
+  const [quiz, setQuiz] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadQuiz() {
+      try {
+        const res = await fetch(
+          `http://localhost:4000/api/courses/${cid}/quizzes/${qid}`
+        );
+
+        if (!res.ok) {
+          setQuiz(null);
+        } else {
+          const data = await res.json();
+          setQuiz(data);
+        }
+      } catch (err) {
+        console.error(err);
+        setQuiz(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadQuiz();
+  }, [cid, qid]);
+
+  if (loading) return <p className="text-center mt-4">Loading...</p>;
+  if (!quiz) return <p className="text-center mt-4">Quiz not found.</p>;
 
   return (
     <div className="container mt-4">
@@ -61,8 +82,7 @@ export default function QuizDetails() {
         </p>
         <hr />
         <p>
-          <strong>Description:</strong>{" "}
-          {quiz.description || "No description provided."}
+          <strong>Description:</strong> {quiz.description || "No description"}
         </p>
         <p>
           <strong>Quiz Type:</strong> {quiz.quizType}
@@ -75,7 +95,7 @@ export default function QuizDetails() {
         </p>
         <p>
           <strong>Time Limit:</strong>{" "}
-          {quiz.timeLimit ? `${quiz.timeLimit} minutes` : "None"}
+          {quiz.timeLimit ? `${quiz.timeLimit} min` : "None"}
         </p>
         <p>
           <strong>Multiple Attempts:</strong>{" "}
@@ -96,18 +116,16 @@ export default function QuizDetails() {
         </p>
         <p>
           <strong>Lock Questions After Answering:</strong>{" "}
-          {quiz.lockQuestionsAfterAnswering ? "Yes" : "No"}
+          {quiz.lockQuestions ? "Yes" : "No"}
         </p>
       </Card>
 
-      <div className="d-flex gap-3">
-        <Button
-          variant="danger"
-          onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}`)}
-        >
-          Start Quiz
-        </Button>
-      </div>
+      <Button
+        variant="danger"
+        onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}`)}
+      >
+        Start Quiz
+      </Button>
     </div>
   );
 }
