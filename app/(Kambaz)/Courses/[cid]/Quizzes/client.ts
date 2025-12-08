@@ -1,10 +1,20 @@
 import axios from "axios";
 import { Quiz } from "./types";
 
-const API_BASE = process.env.NEXT_PUBLIC_HTTP_SERVER;
+const API_BASE = process.env.NEXT_PUBLIC_HTTP_SERVER || "http://localhost:4000";
 
 export const fetchQuizzesForCourse = async (cid: string): Promise<Quiz[]> => {
   const { data } = await axios.get(`${API_BASE}/api/courses/${cid}/quizzes`);
+  return data;
+};
+
+export const fetchQuizById = async (
+  cid: string,
+  qid: string
+): Promise<Quiz> => {
+  const { data } = await axios.get(
+    `${API_BASE}/api/courses/${cid}/quizzes/${qid}`
+  );
   return data;
 };
 

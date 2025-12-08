@@ -1,39 +1,26 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../../../store";
 import { Tabs, Tab, Button } from "react-bootstrap";
-import {
-  updateQuiz,
-  togglePublish,
-  QuizType,
-  AssignmentGroup,
-  Quiz,
-} from "../reducer";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
+
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 export default function QuizDetailsPage() {
   const { cid, qid } = useParams<{ cid: string; qid: string }>();
   const router = useRouter();
-  const dispatch = useDispatch();
 
-  const quiz = useSelector((state: RootState) =>
-    state.quizzesReducer.find((q) => q._id === qid)
-  );
+  const [quiz, setQuiz] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const [activeTab, setActiveTab] = useState("details");
-
-  // 🟢 Form states
-  const [title, setTitle] = useState(quiz?.title || "");
-  const [description, setDescription] = useState(quiz?.description || "");
-  const [quizType, setQuizType] = useState(quiz?.quizType || "Graded Quiz");
-  const [assignmentGroup, setAssignmentGroup] = useState(
-    quiz?.assignmentGroup || "Quizzes"
-  );
-  const [points, setPoints] = useState(quiz?.points || 0);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [quizType, setQuizType] = useState("Graded Quiz");
+  const [assignmentGroup, setAssignmentGroup] = useState("Quizzes");
+  const [points, setPoints] = useState(0);
   const [shuffleAnswers, setShuffleAnswers] = useState(true);
   const [timeLimit, setTimeLimit] = useState(20);
   const [multipleAttempts, setMultipleAttempts] = useState(false);
@@ -42,22 +29,47 @@ export default function QuizDetailsPage() {
   const [oneQuestionAtATime, setOneQuestionAtATime] = useState(true);
   const [webcamRequired, setWebcamRequired] = useState(false);
   const [lockQuestions, setLockQuestions] = useState(false);
-  const [dueDate, setDueDate] = useState(quiz?.dueDate || "");
-  const [availableDate, setAvailableDate] = useState(quiz?.availableDate || "");
-  const [untilDate, setUntilDate] = useState(quiz?.untilDate || "");
+  const [dueDate, setDueDate] = useState("");
+  const [availableDate, setAvailableDate] = useState("");
+  const [untilDate, setUntilDate] = useState("");
 
-  if (!quiz) {
-    return (
-      <div className="p-4 text-center text-muted">
-        <h5>Quiz not found</h5>
-      </div>
-    );
-  }
+  useEffect(() => {
+    async function loadQuiz() {
+      try {
+        const res = await fetch(
+          `http://localhost:4000/api/courses/${cid}/quizzes/${qid}`
+        );
+        const data = await res.json();
 
-  // 🟢 Handle Save
-  const handleSave = (publish: boolean = false) => {
-    const updatedQuiz = {
-      ...quiz,
+        setQuiz(data);
+        setTitle(data.title || "");
+        setDescription(data.description || "");
+        setQuizType(data.quizType || "Graded Quiz");
+        setAssignmentGroup(data.assignmentGroup || "Quizzes");
+        setPoints(data.points || 0);
+        setShuffleAnswers(data.shuffleAnswers ?? true);
+        setTimeLimit(data.timeLimit ?? 20);
+        setMultipleAttempts(data.multipleAttempts ?? false);
+        setShowCorrectAnswers(data.showCorrectAnswers || "Never");
+        setAccessCode(data.accessCode || "");
+        setOneQuestionAtATime(data.oneQuestionAtATime ?? true);
+        setWebcamRequired(data.webcamRequired ?? false);
+        setLockQuestions(data.lockQuestions ?? false);
+        setDueDate(data.dueDate || "");
+        setAvailableDate(data.availableDate || "");
+        setUntilDate(data.untilDate || "");
+      } catch {
+        setQuiz(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadQuiz();
+  }, [cid, qid]);
+
+  const handleSave = async (publish = false) => {
+    const payload = {
       title,
       description,
       quizType,
@@ -74,23 +86,34 @@ export default function QuizDetailsPage() {
       dueDate,
       availableDate,
       untilDate,
-      //published: publish,
+      published: publish ? true : quiz?.published,
     };
-    //Will publish the quiz once save&publish is clicked
-    dispatch(updateQuiz(updatedQuiz));
 
-    if (publish) {
-      dispatch(togglePublish(quiz._id));
-      router.push(`/Courses/${cid}/Quizzes`);
-      return;
+    try {
+      await fetch(`http://localhost:4000/api/quizzes/${qid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (publish) {
+        // ✅ After Save & Publish → go back to Quiz List
+        router.push(`/Courses/${cid}/Quizzes`);
+      } else {
+        // ✅ After Save → go to Quiz Details Page
+        router.push(`/Courses/${cid}/Quizzes/${qid}/QuizDetails`);
+      }
+    } catch (err) {
+      console.error("Failed to save quiz", err);
     }
-    router.push(`/Courses/${cid}/Quizzes/${qid}/QuizDetails`);
   };
 
-  // 🟢 Handle Cancel
   const handleCancel = () => {
     router.push(`/Courses/${cid}/Quizzes`);
   };
+
+  if (loading) return <p className="text-center mt-4">Loading...</p>;
+  if (!quiz) return <p className="text-center mt-4">Quiz not found.</p>;
 
   return (
     <div className="container p-4">
@@ -107,13 +130,11 @@ export default function QuizDetailsPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <Tabs
         activeKey={activeTab}
         onSelect={(k) => setActiveTab(k || "details")}
         className="mb-3"
       >
-        {/* DETAILS TAB */}
         <Tab eventKey="details" title="Details">
           <div className="container py-4">
             {/* Title */}
@@ -136,18 +157,9 @@ export default function QuizDetailsPage() {
                 theme="snow"
                 value={description}
                 onChange={setDescription}
-                modules={{
-                  toolbar: [
-                    ["bold", "italic", "underline"],
-                    ["link", "blockquote"],
-                    [{ list: "ordered" }, { list: "bullet" }],
-                    ["clean"],
-                  ],
-                }}
               />
             </div>
 
-            {/* Fields */}
             <form>
               <div className="row g-3 align-items-start">
                 {/* Quiz Type */}
@@ -158,7 +170,7 @@ export default function QuizDetailsPage() {
                   <select
                     className="form-select w-50"
                     value={quizType}
-                    onChange={(e) => setQuizType(e.target.value as QuizType)} // ✅ cast
+                    onChange={(e) => setQuizType(e.target.value)}
                   >
                     <option value="Graded Quiz">Graded Quiz</option>
                     <option value="Practice Quiz">Practice Quiz</option>
@@ -175,9 +187,7 @@ export default function QuizDetailsPage() {
                   <select
                     className="form-select w-50"
                     value={assignmentGroup}
-                    onChange={(e) =>
-                      setAssignmentGroup(e.target.value as AssignmentGroup)
-                    } // ✅ cast
+                    onChange={(e) => setAssignmentGroup(e.target.value)}
                   >
                     <option value="Quizzes">Quizzes</option>
                     <option value="Exams">Exams</option>
@@ -367,24 +377,22 @@ export default function QuizDetailsPage() {
                   />
                 </div>
               </div>
-
-              {/* Buttons */}
-              <div className="mt-4 d-flex justify-content-end gap-2">
-                <Button variant="outline-secondary" onClick={handleCancel}>
-                  Cancel
-                </Button>
-                <Button variant="danger" onClick={() => handleSave(false)}>
-                  Save
-                </Button>
-                <Button variant="success" onClick={() => handleSave(true)}>
-                  Save & Publish
-                </Button>
-              </div>
             </form>
+
+            <div className="mt-4 d-flex justify-content-end gap-2">
+              <Button variant="outline-secondary" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={() => handleSave(false)}>
+                Save
+              </Button>
+              <Button variant="success" onClick={() => handleSave(true)}>
+                Save & Publish
+              </Button>
+            </div>
           </div>
         </Tab>
 
-        {/* QUESTIONS TAB */}
         <Tab eventKey="questions" title="Questions">
           <div className="p-3">
             <p className="text-muted">No questions yet.</p>
