@@ -44,7 +44,7 @@ export default function QuizDetails() {
           variant="secondary"
           onClick={() => router.push(`/Courses/${cid}/Quizzes`)}
         >
-          Preview
+          Back
         </Button>
 
         <Button
@@ -125,6 +125,10 @@ export default function QuizDetails() {
         onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}`)}
       >
         Start Quiz
+      </Button>
+
+      <Button onClick={() => router.push(`/quizzes/${quiz.id}/preview`)}>
+        Preview Quiz
       </Button>
     </div>
   );

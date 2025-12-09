@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { Tabs, Tab, Button } from "react-bootstrap";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
+import { deleteQuestion } from "../../Quizzes/client";
+import { Question } from "../../Quizzes/types";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -14,6 +16,18 @@ export default function QuizDetailsPage() {
 
   const [quiz, setQuiz] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [questions, setQuestions] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadQuestions() {
+      const res = await fetch(
+        `http://localhost:4000/api/quizzes/${qid}/questions`
+      );
+      const data = await res.json();
+      setQuestions(data);
+    }
+    loadQuestions();
+  }, [qid]);
 
   const [activeTab, setActiveTab] = useState("details");
   const [title, setTitle] = useState("");
@@ -114,6 +128,19 @@ export default function QuizDetailsPage() {
 
   if (loading) return <p className="text-center mt-4">Loading...</p>;
   if (!quiz) return <p className="text-center mt-4">Quiz not found.</p>;
+
+  const removeQuestion = async (questionId: string) => {
+    if (!questionId) return;
+
+    try {
+      await deleteQuestion(qid, questionId);
+
+      // Update UI after delete
+      setQuestions((prev) => prev.filter((q) => q.id !== questionId));
+    } catch (err) {
+      console.error("Failed to delete question:", err);
+    }
+  };
 
   return (
     <div className="container p-4">
@@ -393,12 +420,76 @@ export default function QuizDetailsPage() {
           </div>
         </Tab>
 
+        {/* questions tab */}
+
         <Tab eventKey="questions" title="Questions">
           <div className="p-3">
-            <p className="text-muted">No questions yet.</p>
-            <Button variant="danger" size="sm">
-              + Add Question
-            </Button>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="mb-0">Questions</h5>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() =>
+                  router.push(`/Courses/${cid}/Quizzes/${qid}/Questions/new`)
+                }
+              >
+                + Add Question
+              </Button>
+            </div>
+
+            <div className="list-group">
+              {questions.length === 0 ? (
+                <div className="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>No questions yet</strong>
+                  </div>
+                </div>
+              ) : (
+                questions.map((q) => (
+                  <div
+                    key={q.id}
+                    className="list-group-item d-flex justify-content-between align-items-center"
+                  >
+                    <div>
+                      <strong>{q.text}</strong> ({q.type}, {q.points} pts)
+                    </div>
+
+                    <div className="d-flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline-primary"
+                        onClick={() =>
+                          router.push(
+                            `/Courses/${cid}/Quizzes/${qid}/Questions/${q.id}`
+                          )
+                        }
+                      >
+                        Edit
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="outline-danger"
+                        onClick={() => removeQuestion(q._id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="mt-4 d-flex justify-content-end gap-2">
+              <Button variant="outline-secondary" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={() => handleSave(false)}>
+                Save
+              </Button>
+              <Button variant="success" onClick={() => handleSave(true)}>
+                Save & Publish
+              </Button>
+            </div>
           </div>
         </Tab>
       </Tabs>

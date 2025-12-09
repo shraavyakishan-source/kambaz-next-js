@@ -24,3 +24,12 @@ export interface Quiz {
   published: boolean;
   status: string;
 }
+export type Question = {
+  _id?: string;
+  quiz: string;
+  type: "multiple-choice" | "true-false" | "fill-in-the-blank";
+  text: string;
+  options?: string[];
+  answer: string;
+  points: number;
+};

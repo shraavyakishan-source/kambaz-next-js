@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Quiz } from "./types";
+import { Question, Quiz } from "./types";
 
 // Base server URL (this will work locally and on Vercel)
 const HTTP_SERVER =
@@ -52,5 +52,61 @@ export const deleteQuizForCourse = async (qid: string) => {
 // Toggle publish/unpublish a quiz
 export const togglePublishQuiz = async (qid: string): Promise<Quiz> => {
   const { data } = await axios.put(`${QUIZZES_API}/${qid}/publish`);
+  return data;
+};
+
+// ===== QUESTION APIs =====
+
+const QUESTIONS_API = `${HTTP_SERVER}/api/quizzes`;
+
+// Get all questions for a quiz
+export const fetchQuestionsForQuiz = async (
+  qid: string
+): Promise<Question[]> => {
+  const { data } = await axios.get(`${QUESTIONS_API}/${qid}/questions`);
+  return data;
+};
+
+// Get one question by ID
+export const fetchQuestionById = async (
+  qid: string,
+  questionId: string
+): Promise<Question> => {
+  const { data } = await axios.get(
+    `${QUESTIONS_API}/${qid}/questions/${questionId}`
+  );
+  return data;
+};
+
+// Create new question
+export const createQuestionForQuiz = async (
+  qid: string,
+  question: Partial<Question>
+): Promise<Question> => {
+  const { data } = await axios.post(
+    `${QUESTIONS_API}/${qid}/questions`,
+    question
+  );
+  return data;
+};
+
+// Update question
+export const updateQuestion = async (
+  qid: string,
+  questionId: string,
+  question: Partial<Question>
+): Promise<Question> => {
+  const { data } = await axios.put(
+    `${QUESTIONS_API}/${qid}/questions/${questionId}`,
+    question
+  );
+  return data;
+};
+
+// Delete question
+export const deleteQuestion = async (qid: string, questionId: string) => {
+  const { data } = await axios.delete(
+    `${QUESTIONS_API}/${qid}/questions/${questionId}`
+  );
   return data;
 };
