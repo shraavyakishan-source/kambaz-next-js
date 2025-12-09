@@ -23,6 +23,7 @@ export interface Quiz {
   numQuestions: number;
   published: boolean;
   status: string;
+  questions: Question[];
 }
 export type Question = {
   _id?: string;

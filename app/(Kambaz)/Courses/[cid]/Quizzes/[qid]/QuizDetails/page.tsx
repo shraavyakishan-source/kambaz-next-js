@@ -6,6 +6,7 @@ import { Button, Card } from "react-bootstrap";
 export default function QuizDetails() {
   const { cid, qid } = useParams();
   const router = useRouter();
+  const [user, setUser] = useState<any>(null);
 
   const [quiz, setQuiz] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -127,7 +128,9 @@ export default function QuizDetails() {
         Start Quiz
       </Button>
 
-      <Button onClick={() => router.push(`/quizzes/${quiz.id}/preview`)}>
+      <Button
+        onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}/preview`)}
+      >
         Preview Quiz
       </Button>
     </div>
