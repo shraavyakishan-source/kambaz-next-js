@@ -451,7 +451,8 @@ export default function QuizDetailsPage() {
                     className="list-group-item d-flex justify-content-between align-items-center"
                   >
                     <div>
-                      <strong>{q.text}</strong> ({q.type}, {q.points} pts)
+                      <strong>{q.text.replace(/<[^>]*>/g, "").trim()}</strong> (
+                      {q.type}, {q.points} pts)
                     </div>
 
                     <div className="d-flex gap-2">

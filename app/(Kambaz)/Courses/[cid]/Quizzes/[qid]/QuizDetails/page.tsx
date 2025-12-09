@@ -83,8 +83,11 @@ export default function QuizDetails() {
         </p>
         <hr />
         <p>
-          <strong>Description:</strong> {quiz.description || "No description"}
+          <strong>Description:</strong>{" "}
+          {(quiz.description || "").replace(/<[^>]*>/g, "").trim() ||
+            "No description"}
         </p>
+
         <p>
           <strong>Quiz Type:</strong> {quiz.quizType}
         </p>
@@ -123,7 +126,23 @@ export default function QuizDetails() {
 
       <Button
         variant="danger"
-        onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}`)}
+        onClick={async () => {
+          try {
+            const res = await fetch(
+              `http://localhost:4000/api/courses/${cid}/quizzes/${qid}/start`,
+              { method: "POST", credentials: "include" }
+            );
+            if (!res.ok) throw new Error("Failed to start quiz");
+
+            const data = await res.json();
+            router.push(
+              `/Courses/${cid}/Quizzes/${qid}/attempt/${data.attemptId}`
+            );
+          } catch (err) {
+            console.error(err);
+            alert("Could not start quiz. Please try again.");
+          }
+        }}
       >
         Start Quiz
       </Button>
