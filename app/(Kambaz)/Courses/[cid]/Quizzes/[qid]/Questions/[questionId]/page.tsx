@@ -38,18 +38,38 @@ export default function QuestionsEditorPage() {
       try {
         const data = await fetchQuestionsForQuiz(qid);
 
-        // ✅ Normalize MongoDB _id → id so state updates target only one question
-        const normalized = data.map((q: any) => ({
-          ...q,
-          id: q._id,
-        }));
+        // Normalize and ensure options exist per type
+        const normalized = data.map((q: any) => {
+          const base = {
+            ...q,
+            id: q._id,
+          };
+
+          // Ensure options array exists in a predictable shape
+          if (!Array.isArray(base.options)) {
+            if (base.type === "true-false") base.options = ["True", "False"];
+            else if (base.type === "fill-in-the-blank")
+              base.options = base.answer ? [base.answer] : [""];
+            else base.options = ["", ""];
+          }
+
+          // Backwards compatibility: if fill-in-the-blank stored answer (string),
+          // we use options array as canonical list of acceptable answers.
+          if (base.type === "fill-in-the-blank") {
+            if ((!base.options || base.options.length === 0) && base.answer) {
+              base.options = [base.answer];
+            }
+          }
+
+          return base;
+        });
 
         if (normalized.length) {
           setQuestions(normalized);
         } else {
           setQuestions([
             {
-              id: `temp-${Date.now()}`, // ✅ give temporary unique ID
+              id: `temp-${Date.now()}`,
               type: "multiple-choice",
               text: "",
               options: ["", ""],
@@ -77,24 +97,26 @@ export default function QuestionsEditorPage() {
   };
 
   const updateOption = (
-    qid: string | undefined,
+    qidParam: string | undefined,
     idx: number,
     value: string
   ) => {
     setQuestions((prev) =>
       prev.map((q) => {
-        if (q.id !== qid) return q;
+        if (q.id !== qidParam) return q;
         const copy = [...(q.options || [])];
-        copy[idx] = value;
+        // If idx inside range -> set, else push
+        if (idx >= 0 && idx < copy.length) copy[idx] = value;
+        else copy.push(value);
         return { ...q, options: copy };
       })
     );
   };
 
-  const addOption = (qid: string | undefined) => {
+  const addOption = (qidParam: string | undefined) => {
     setQuestions((prev) =>
       prev.map((q) =>
-        q.id === qid ? { ...q, options: [...(q.options || []), ""] } : q
+        q.id === qidParam ? { ...q, options: [...(q.options || []), ""] } : q
       )
     );
   };
@@ -129,13 +151,21 @@ export default function QuestionsEditorPage() {
   const updateSingleQuestion = async (q: UIQuestion) => {
     if (!q.id) return;
     try {
-      await updateQuestion(qid, q.id, {
+      // For fill-in-the-blank ensure answer is at least first option
+      const payload: any = {
         type: q.type,
         text: q.text,
-        options: q.options,
-        answer: q.answer,
+        options: q.options || [],
         points: q.points,
-      });
+      };
+
+      if (q.type === "fill-in-the-blank") {
+        payload.answer = (q.options && q.options[0]) || q.answer || "";
+      } else {
+        payload.answer = q.answer || "";
+      }
+
+      await updateQuestion(qid, q.id, payload);
       alert("Question updated!");
     } catch (err) {
       console.error("Failed to update question:", err);
@@ -148,14 +178,51 @@ export default function QuestionsEditorPage() {
       return html.replace(/<[^>]*>/g, "").trim();
     };
 
-    // Validate questions
+    // Validate questions (robust for all types)
     const invalidQuestions: number[] = [];
     questions.forEach((q, index) => {
       const textContent = stripHtml(q.text);
-      const answerContent = stripHtml(q.answer);
 
-      if (!textContent || !answerContent) {
+      if (!textContent) {
         invalidQuestions.push(index + 1);
+        return;
+      }
+
+      if (q.type === "multiple-choice") {
+        const opts = q.options || [];
+        if (opts.length < 2) {
+          invalidQuestions.push(index + 1);
+          return;
+        }
+        if (!q.answer || String(q.answer).trim() === "") {
+          invalidQuestions.push(index + 1);
+          return;
+        }
+      }
+
+      if (q.type === "true-false") {
+        const opts = q.options || [];
+        if (opts.length < 1) {
+          invalidQuestions.push(index + 1);
+          return;
+        }
+        if (!q.answer || !opts.includes(q.answer)) {
+          invalidQuestions.push(index + 1);
+          return;
+        }
+      }
+
+      if (q.type === "fill-in-the-blank") {
+        const opts = q.options || [];
+        if (opts.length === 0) {
+          invalidQuestions.push(index + 1);
+          return;
+        }
+        // no empty blanks allowed
+        if (opts.some((v) => !String(v || "").trim())) {
+          invalidQuestions.push(index + 1);
+          return;
+        }
       }
     });
 
@@ -165,20 +232,26 @@ export default function QuestionsEditorPage() {
     }
 
     try {
-      // 1️⃣ Save questions
+      // 1) Save questions (create or update)
       await Promise.all(
         questions.map((q) => {
-          const payload = {
+          const payload: any = {
             type: q.type,
             text: q.text?.trim() || "",
             options: q.options || [],
-            answer: q.answer?.trim() || "",
             points: q.points || 1,
           };
 
-          if (!payload.text || !payload.answer) return;
+          if (q.type === "fill-in-the-blank") {
+            payload.answer = (q.options && q.options[0]) || q.answer || "";
+          } else {
+            payload.answer = q.answer || "";
+          }
 
-          if (!q.id || q.id.startsWith("temp")) {
+          // If payload invalid skip (shouldn't happen due to validation)
+          if (!payload.text) return;
+
+          if (!q.id || String(q.id).startsWith("temp")) {
             return createQuestionForQuiz(qid, payload);
           }
 
@@ -186,7 +259,7 @@ export default function QuestionsEditorPage() {
         })
       );
 
-      // 2️⃣ Publish quiz if needed ✅
+      // 2) Publish quiz if needed
       if (publish) {
         await fetch(`http://localhost:4000/api/quizzes/${qid}`, {
           method: "PUT",
@@ -195,15 +268,42 @@ export default function QuestionsEditorPage() {
         });
       }
 
-      // 3️⃣ Navigate back
+      // 3) Navigate back
       router.push(`/Courses/${cid}/Quizzes/${qid}`);
     } catch (err) {
       console.error("Save failed:", err);
+      alert("Save failed. Check console for details.");
     }
   };
 
   const handleCancel = () => {
     router.push(`/Courses/${cid}/Quizzes/${qid}`);
+  };
+
+  const deleteOption = (qidParam: string | undefined, idx: number) => {
+    setQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== qidParam) return q;
+
+        const updatedOptions = [...(q.options || [])];
+
+        // capture removed value before splice
+        const removed = updatedOptions.splice(idx, 1)[0];
+
+        // If you delete the correct answer, clear it
+        let updatedAnswer = q.answer;
+        if (updatedAnswer === removed) {
+          updatedAnswer = "";
+        }
+
+        // Ensure at least one blank for fill-in-the-blank
+        if (q.type === "fill-in-the-blank" && updatedOptions.length === 0) {
+          updatedOptions.push("");
+        }
+
+        return { ...q, options: updatedOptions, answer: updatedAnswer };
+      })
+    );
   };
 
   return (
@@ -277,6 +377,13 @@ export default function QuestionsEditorPage() {
                     placeholder={`Choice ${idx + 1}`}
                     onChange={(e) => updateOption(q.id, idx, e.target.value)}
                   />
+                  <Button
+                    size="sm"
+                    variant="outline-danger"
+                    onClick={() => deleteOption(q.id, idx)}
+                  >
+                    ✕
+                  </Button>
                 </div>
               ))}
               <Button
@@ -284,42 +391,85 @@ export default function QuestionsEditorPage() {
                 variant="outline-primary"
                 onClick={() => addOption(q.id)}
               >
-                + Add Another Answer
+                + Add Another option
               </Button>
             </div>
           )}
 
-          {/* True/False */}
+          {/* True/False as editable options (Option B behavior) */}
           {q.type === "true-false" && (
             <div className="mt-3">
-              <Form.Check
-                type="radio"
-                name={`tf-${q.id}`}
-                label="True"
-                checked={q.answer === "True"}
-                onChange={() => updateQuestionState(q.id, "answer", "True")}
-              />
-              <Form.Check
-                type="radio"
-                name={`tf-${q.id}`}
-                label="False"
-                checked={q.answer === "False"}
-                onChange={() => updateQuestionState(q.id, "answer", "False")}
-              />
+              <label className="fw-bold mb-2">True / False Options</label>
+
+              {(q.options || ["True", "False"]).map((opt, idx) => (
+                <div key={idx} className="d-flex align-items-center gap-2 mb-2">
+                  <input
+                    type="radio"
+                    name={`tf-${q.id}`}
+                    checked={q.answer === opt}
+                    onChange={() => updateQuestionState(q.id, "answer", opt)}
+                  />
+
+                  {/* Editable option text */}
+                  <Form.Control
+                    type="text"
+                    value={opt}
+                    onChange={(e) => updateOption(q.id, idx, e.target.value)}
+                  />
+
+                  {/* Delete option */}
+                  <Button
+                    size="sm"
+                    variant="outline-danger"
+                    onClick={() => deleteOption(q.id, idx)}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              ))}
+
+              {/* Add another True/False option */}
+              <Button
+                size="sm"
+                variant="outline-primary"
+                onClick={() => addOption(q.id)}
+              >
+                + Add Option
+              </Button>
             </div>
           )}
 
-          {/* Fill in Blank */}
+          {/* Fill in the Blank (multiple acceptable answers) */}
           {q.type === "fill-in-the-blank" && (
             <div className="mt-3">
-              <Form.Control
-                type="text"
-                placeholder="Correct Answer"
-                value={q.answer || ""}
-                onChange={(e) =>
-                  updateQuestionState(q.id, "answer", e.target.value)
-                }
-              />
+              <label className="fw-bold mb-2">Correct Answer(s)</label>
+
+              {(q.options || [q.answer || ""]).map((opt, idx) => (
+                <div key={idx} className="d-flex align-items-center gap-2 mb-2">
+                  <Form.Control
+                    type="text"
+                    value={opt}
+                    placeholder={`Blank ${idx + 1}`}
+                    onChange={(e) => updateOption(q.id, idx, e.target.value)}
+                  />
+
+                  <Button
+                    size="sm"
+                    variant="outline-danger"
+                    onClick={() => deleteOption(q.id, idx)}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              ))}
+
+              <Button
+                size="sm"
+                variant="outline-primary"
+                onClick={() => addOption(q.id)}
+              >
+                + Add Another Blank
+              </Button>
             </div>
           )}
 

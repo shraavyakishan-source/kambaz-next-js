@@ -92,6 +92,7 @@ export default function QuizDetailsPage() {
       shuffleAnswers,
       timeLimit,
       multipleAttempts,
+      howManyAttempts: quiz?.howManyAttempts ?? 1,
       showCorrectAnswers,
       accessCode,
       oneQuestionAtATime,
@@ -288,6 +289,29 @@ export default function QuizDetailsPage() {
                     <option>Yes</option>
                   </select>
                 </div>
+
+                {/* How Many Attempts */}
+                {multipleAttempts && (
+                  <>
+                    <div className="col-md-4 text-md-end">
+                      <label className="form-label">How Many Attempts</label>
+                    </div>
+                    <div className="col-md-8">
+                      <input
+                        type="number"
+                        className="form-control w-25"
+                        min={1}
+                        value={quiz.howManyAttempts ?? 1}
+                        onChange={(e) =>
+                          setQuiz({
+                            ...quiz,
+                            howManyAttempts: Number(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                  </>
+                )}
 
                 {/* Show Correct Answers */}
                 <div className="col-md-4 text-md-end">
