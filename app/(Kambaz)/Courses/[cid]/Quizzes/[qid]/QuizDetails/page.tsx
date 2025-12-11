@@ -2,20 +2,29 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, Card } from "react-bootstrap";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../../../store";
 
 export default function QuizDetails() {
   const { cid, qid } = useParams();
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const currentUser = useSelector(
+    (s: RootState) => s.accountReducer.currentUser
+  );
 
   const [quiz, setQuiz] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const canEdit =
+    currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
+
+  // Load quiz
   useEffect(() => {
     async function loadQuiz() {
       try {
         const res = await fetch(
-          `http://localhost:4000/api/courses/${cid}/quizzes/${qid}`
+          `http://localhost:4000/api/courses/${cid}/quizzes/${qid}`,
+          { credentials: "include" }
         );
 
         if (!res.ok) {
@@ -48,19 +57,33 @@ export default function QuizDetails() {
           Back
         </Button>
 
-        <Button
-          variant="secondary"
-          onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}`)}
-        >
-          ✏️ Edit
-        </Button>
+        {canEdit && (
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}`)}
+            >
+              ✏️ Edit
+            </Button>
+
+            <Button
+              variant="secondary"
+              onClick={() =>
+                router.push(`/Courses/${cid}/Quizzes/${qid}/preview`)
+              }
+            >
+              Preview Quiz
+            </Button>
+          </>
+        )}
       </div>
+
       <hr />
       <h2 className="mb-4">{quiz.title}</h2>
 
       <Card className="p-3 mb-4">
         <p>
-          <strong>Due Date:</strong> {quiz.dueDate}
+          <strong>Due Date:</strong> {quiz.dueDate || "—"}
         </p>
         <p>
           <strong>Available From:</strong> {quiz.availableDate || "—"}
@@ -84,10 +107,10 @@ export default function QuizDetails() {
         <hr />
         <p>
           <strong>Description:</strong>{" "}
-          {(quiz.description || "").replace(/<[^>]*>/g, "").trim() ||
-            "No description"}
+          {quiz.description
+            ? quiz.description.replace(/<[^>]+>/g, "").trim()
+            : "No description"}
         </p>
-
         <p>
           <strong>Quiz Type:</strong> {quiz.quizType}
         </p>
@@ -105,6 +128,7 @@ export default function QuizDetails() {
           <strong>Multiple Attempts:</strong>{" "}
           {quiz.multipleAttempts ? "Allowed" : "Not allowed"}
         </p>
+
         <p>
           <strong>Show Correct Answers:</strong> {quiz.showCorrectAnswers}
         </p>
@@ -124,34 +148,36 @@ export default function QuizDetails() {
         </p>
       </Card>
 
-      <Button
-        variant="danger"
-        onClick={async () => {
-          try {
-            const res = await fetch(
-              `http://localhost:4000/api/courses/${cid}/quizzes/${qid}/start`,
-              { method: "POST", credentials: "include" }
-            );
-            if (!res.ok) throw new Error("Failed to start quiz");
+      {/* Start Quiz button for students */}
+      {currentUser?.role === "STUDENT" && (
+        <Button
+          variant="danger"
+          onClick={async () => {
+            try {
+              const res = await fetch(
+                `http://localhost:4000/api/courses/${cid}/quizzes/${qid}/start`,
+                { method: "POST", credentials: "include" }
+              );
 
-            const data = await res.json();
-            router.push(
-              `/Courses/${cid}/Quizzes/${qid}/attempt/${data.attemptId}`
-            );
-          } catch (err) {
-            console.error(err);
-            alert("Could not start quiz. Please try again.");
-          }
-        }}
-      >
-        Start Quiz
-      </Button>
+              const data = await res.json();
 
-      <Button
-        onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}/preview`)}
-      >
-        Preview Quiz
-      </Button>
+              if (!res.ok) {
+                alert(data.message || "You cannot take this quiz");
+                return;
+              }
+
+              router.push(
+                `/Courses/${cid}/Quizzes/${qid}/attempt/${data.attemptId}`
+              );
+            } catch (err) {
+              console.error(err);
+              alert("Network error. Please try again.");
+            }
+          }}
+        >
+          Start Quiz
+        </Button>
+      )}
     </div>
   );
 }

@@ -20,6 +20,9 @@ import QuizEditor from "./QuizEditor";
 import * as client from "./client";
 import { Quiz } from "./types";
 
+import { useSelector } from "react-redux";
+import type { RootState } from "..//../../store"; // adjust path if needed
+
 // Format date helper
 function format(date?: string) {
   if (!date) return "";
@@ -34,6 +37,12 @@ function format(date?: string) {
 export default function Quizzes() {
   const { cid } = useParams<{ cid: string }>();
   const router = useRouter();
+
+  const currentUser = useSelector(
+    (state: RootState) => state.accountReducer.currentUser
+  );
+  const canEdit =
+    currentUser?.role === "ADMIN" || currentUser?.role === "FACULTY";
 
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,6 +109,7 @@ export default function Quizzes() {
   };
 
   if (loading) return <p>Loading quizzes...</p>;
+  if (!currentUser) return <p>Loading user info...</p>;
 
   return (
     <div className="p-3" style={{ maxWidth: "700px" }}>
@@ -112,9 +122,11 @@ export default function Quizzes() {
           <FormControl placeholder="Search for Quiz" />
         </InputGroup>
 
-        <Button variant="danger" onClick={() => openEditor()}>
-          + Quiz
-        </Button>
+        {canEdit && (
+          <Button variant="danger" onClick={() => openEditor()}>
+            + Quiz
+          </Button>
+        )}
       </div>
 
       {/* Quizzes List */}
@@ -143,43 +155,49 @@ export default function Quizzes() {
                 </div>
 
                 <div className="d-flex align-items-center">
-                  {q.published ? (
-                    <FaCheckCircle
-                      className="text-success me-3"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleTogglePublish(q._id)}
-                    />
-                  ) : (
-                    <span
-                      style={{ cursor: "pointer" }}
-                      className="text-secondary fs-5 me-3"
-                      onClick={() => handleTogglePublish(q._id)}
-                    >
-                      🚫
-                    </span>
+                  {canEdit && (
+                    <>
+                      {q.published ? (
+                        <FaCheckCircle
+                          className="text-success me-3"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleTogglePublish(q._id)}
+                        />
+                      ) : (
+                        <span
+                          style={{ cursor: "pointer" }}
+                          className="text-secondary fs-5 me-3"
+                          onClick={() => handleTogglePublish(q._id)}
+                        >
+                          🚫
+                        </span>
+                      )}
+
+                      <Dropdown align="end">
+                        <Dropdown.Toggle
+                          as="button"
+                          className="btn btn-link text-secondary p-0"
+                          bsPrefix="custom-toggle"
+                        >
+                          <BsThreeDotsVertical />
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                          <Dropdown.Item onClick={() => openEditor(q)}>
+                            ✏️ Edit
+                          </Dropdown.Item>
+                          <Dropdown.Item onClick={() => confirmDelete(q)}>
+                            🗑 Delete
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            onClick={() => handleTogglePublish(q._id)}
+                          >
+                            {q.published ? "📤 Unpublish" : "📢 Publish"}
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </>
                   )}
-
-                  <Dropdown align="end">
-                    <Dropdown.Toggle
-                      as="button"
-                      className="btn btn-link text-secondary p-0"
-                      bsPrefix="custom-toggle"
-                    >
-                      <BsThreeDotsVertical />
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => openEditor(q)}>
-                        ✏️ Edit
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => confirmDelete(q)}>
-                        🗑 Delete
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => handleTogglePublish(q._id)}>
-                        {q.published ? "📤 Unpublish" : "📢 Publish"}
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
                 </div>
               </div>
 
